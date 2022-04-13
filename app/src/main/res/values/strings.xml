@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">CityCross</string>
+    <string name="calage">Calage</string>
+    <string name="guidage">Guidage</string>
+    <string name="citycrossimage">citycrossImage</string>
+    <string name="citycross">CityCross</string>
+    <string name="togglebutton3">ToggleButton3</string>
+    <string name="en_savoir_plus">En savoir Plus</string>
+    <string name="togglebutton">ToggleButton</string>
+    <string name="togglebutton2">ToggleButton2</string>
+    <string name="explications">Explications</string>
+    <string name="button">Button</string>
+
+</resources>
