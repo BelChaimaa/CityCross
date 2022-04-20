@@ -3,18 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2265" />
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_calage.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_calage2.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_geolocalisation.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_guidage.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_savoir_plus.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_splash_screen.xml" value="0.2" />
-        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_guidage.xml" value="0.3625" />
-        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_main.xml" value="0.3625" />
-        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_splash_screen.xml" value="0.3625" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
