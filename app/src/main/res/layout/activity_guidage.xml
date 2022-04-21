@@ -57,7 +57,7 @@
         app:layout_constraintVertical_bias="0.265" />
 
     <TextView
-        android:id="@+id/textAz1"
+        android:id="@+id/txtAz1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -67,17 +67,17 @@
         app:layout_constraintTop_toBottomOf="@+id/txtAngle" />
 
     <TextView
-        android:id="@+id/textAz2"
+        android:id="@+id/txtAz2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textS12"
-        app:layout_constraintStart_toEndOf="@+id/textAz1"
+        app:layout_constraintEnd_toStartOf="@+id/txtS12"
+        app:layout_constraintStart_toEndOf="@+id/txtAz1"
         app:layout_constraintTop_toBottomOf="@+id/txtAngle" />
 
     <TextView
-        android:id="@+id/textS12"
+        android:id="@+id/txtS12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
