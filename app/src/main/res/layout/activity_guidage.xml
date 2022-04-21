@@ -55,4 +55,34 @@
         app:layout_constraintStart_toStartOf="@+id/txtDirection"
         app:layout_constraintTop_toBottomOf="@+id/txtDirection"
         app:layout_constraintVertical_bias="0.265" />
+
+    <TextView
+        android:id="@+id/txtAz1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/txtAngle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtAngle" />
+
+    <TextView
+        android:id="@+id/txtAz2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/txtS12"
+        app:layout_constraintStart_toEndOf="@+id/txtAz1"
+        app:layout_constraintTop_toBottomOf="@+id/txtAngle" />
+
+    <TextView
+        android:id="@+id/txtS12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtAngle"
+        app:layout_constraintTop_toBottomOf="@+id/txtAngle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
