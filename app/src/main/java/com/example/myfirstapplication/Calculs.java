@@ -12,7 +12,7 @@ public class Calculs {
     }
 
     public static double getAngle(double[] coordsVille, double[] coordsUtilisateur){
-        double[] coordsNord = {48.336847799006, 7.1807626240416};
+        double[] coordsNord = {0, 0};
         double angle = Math.atan2(coordsNord[1] - coordsUtilisateur[1], coordsNord[0] - coordsUtilisateur[0]) - Math.atan2(coordsVille[1] - coordsUtilisateur[1], coordsVille[0] - coordsUtilisateur[0]);
 
         return Math.toDegrees(angle);
