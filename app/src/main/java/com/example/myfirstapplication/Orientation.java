@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 public class Orientation implements SensorEventListener {
 
     public interface Listener {
-        void onOrientationChanged(float azimuth);
+        void onOrientationChanged(double azimuth);
     }
 
     private static final int SENSOR_DELAY_MICROS = 100000 * 1000; // 16ms
