@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         calage= findViewById(R.id.toggleButton);
         guidage=findViewById(R.id.toggleButton3);
         savoirPlus=findViewById(R.id.toggleButton4);
-
+/*
         //ajouter evenement setOnclickListener sur les boutons
         calage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
                 openActivitycalage();
 
             }
-        });
+        });*/
 
         guidage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intent=new Intent(this,guidage.class);
         startActivity(intent);
     }
-
+/*
 
     public void openActivitycalage(){
         Intent intent=new Intent(this,calage.class);
         startActivity(intent);
-    }
+    }*/
 
     public void openActivitySavoirPlus(){
         Intent intent=new Intent(this,SavoirPlus.class);
