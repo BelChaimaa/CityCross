@@ -5,6 +5,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+=======
+import android.os.Bundle;
+/*
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -47,4 +50,4 @@ public class calage extends FragmentActivity implements OnMapReadyCallback{
 
 
     }
-}
+}*/

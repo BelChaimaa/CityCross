@@ -11,15 +11,12 @@
         android:layout_width="255dp"
         android:layout_height="49dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="@+id/inputVille"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/inputVille"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.107">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputVille"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -29,6 +26,7 @@
         android:text="Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="@+id/textInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
         app:layout_constraintVertical_bias="0.0" />
@@ -40,19 +38,41 @@
         android:text="Direction"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.442"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.299" />
+        app:layout_constraintVertical_bias="0.084" />
 
     <TextView
-        android:id="@+id/txtAngle"
+        android:id="@+id/txtAz1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Angle"
+        android:layout_marginBottom="424dp"
+        android:text="azimuth"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/txtDirection"
         app:layout_constraintStart_toStartOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/txtDirection"
-        app:layout_constraintVertical_bias="0.265" />
+        app:layout_constraintTop_toBottomOf="@+id/txtDirection" />
+
+    <TextView
+        android:id="@+id/txtS12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="216dp"
+        android:text="Declinaison"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/txtAz1"
+        app:layout_constraintStart_toStartOf="@+id/txtAz1"
+        app:layout_constraintTop_toBottomOf="@+id/txtAz1" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/inputVille"
+        android:layout_width="245dp"
+        android:layout_height="62dp"
+        android:layout_marginTop="60dp"
+        android:hint="hint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.445"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
