@@ -10,5 +10,7 @@
     <string name="togglebutton2">ToggleButton2</string>
     <string name="explications">Explications</string>
     <string name="button">Button</string>
+    <string name="title_activity_maps_geolocalisation">MapsActivity</string>
+
 
 </resources>

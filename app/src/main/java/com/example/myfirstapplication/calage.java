@@ -1,10 +1,9 @@
 package com.example.myfirstapplication;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
-
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,9 +12,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
 public class calage extends FragmentActivity implements OnMapReadyCallback{
 
     GoogleMap map;
+    private Orientation mOrientation;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +29,13 @@ public class calage extends FragmentActivity implements OnMapReadyCallback{
         SupportMapFragment mapFragment= (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        mOrientation = new Orientation(this);
+     //   mGeolocalisation=new Geolocalisation(this);
+
+
     }
+
+
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {

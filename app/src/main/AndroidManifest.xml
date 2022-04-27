@@ -13,9 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyFirstApplication">
-        <activity
-            android:name=".Geolocalisation"
-            android:exported="false" />
+
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -32,26 +30,30 @@
             android:value="@string/map_key" />
 
         <activity
+            android:name=".MapsActivity_Geolocalisation"
+            android:exported="true"
+            android:label="@string/title_activity_maps_geolocalisation">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+        <activity
             android:name=".SavoirPlus"
             android:exported="false" />
         <activity
             android:name=".guidage"
             android:exported="false" />
         <activity
-            android:name=".calage"
+            android:name=".SplashScreen"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashScreen"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".calage"
+            android:exported="false" />
     </application>
 
 </manifest>
