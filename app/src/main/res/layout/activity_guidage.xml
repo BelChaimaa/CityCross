@@ -17,8 +17,13 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/inputVille"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.107">
+        app:layout_constraintVertical_bias="0.023">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputVille"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:hint="ville" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -28,11 +33,11 @@
         android:background="#009688"
         android:text="Chercher"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="@+id/textInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.309"
+        app:layout_constraintStart_toEndOf="@+id/inputVille"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.024" />
 
     <TextView
         android:id="@+id/txtDirection"
@@ -41,10 +46,10 @@
         android:text="Direction"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.219"
+        app:layout_constraintHorizontal_bias="0.208"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.083" />
+        app:layout_constraintVertical_bias="0.023" />
 
     <TextView
         android:id="@+id/txtAz1"
@@ -53,10 +58,10 @@
         android:text="azimuth"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.572"
+        app:layout_constraintHorizontal_bias="0.597"
         app:layout_constraintStart_toEndOf="@+id/txtDirection"
         app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.176" />
+        app:layout_constraintVertical_bias="0.048" />
 
     <TextView
         android:id="@+id/txtS12"
@@ -65,31 +70,22 @@
         android:text="Distance"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toStartOf="@+id/txtAz1"
-        app:layout_constraintHorizontal_bias="0.256"
+        app:layout_constraintHorizontal_bias="0.536"
         app:layout_constraintStart_toEndOf="@+id/txtDirection"
         app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.477" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/inputVille"
-        android:layout_width="245dp"
-        android:layout_height="62dp"
-        android:layout_marginTop="60dp"
-        android:hint="ville"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.445"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintVertical_bias="0.143" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="124dp"
+        android:layout_height="118dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVille" />
+        app:layout_constraintTop_toBottomOf="@+id/btnVille"
+        app:layout_constraintVertical_bias="0.447" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

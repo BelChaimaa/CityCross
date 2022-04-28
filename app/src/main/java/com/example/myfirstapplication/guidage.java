@@ -42,6 +42,8 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     private TextView txtAz1;
     private TextView txtS12;
 
+    private GuidageView guidageView;
+
     private Orientation mOrientation;
     private boolean corrige = false;
 
@@ -65,13 +67,6 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             ActivityCompat.requestPermissions(guidage.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return;
         } else {
@@ -124,6 +119,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         if(corrige){
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
             txtDirection.setText(Double.toString(direction));
+            initLayout.removeView(guidageView);
+            guidageView = new GuidageView(this, inverseUtilisateurVille.azi1, direction);
+            initLayout.addView(guidageView);
             if(Math.abs(direction - inverseUtilisateurVille.azi1) < seuilAngle){
                 initLayout.setBackgroundColor(green);
             } else {
