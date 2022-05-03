@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.ProgressBar;
@@ -26,6 +27,23 @@ import android.widget.Button;
 import com.google.android.material.textfield.TextInputEditText;
 
 import net.sf.geographiclib.*; // librairie externe qui permet d'effectuer les calculs géodésiques comme le problème inverse, situé dans app/libs
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class guidage extends AppCompatActivity implements Orientation.Listener {
 
@@ -54,8 +72,8 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
     private double[] coordsUtilisateur;
     private double direction;
-    /* Attributs temporaires utilisés pour les tests en attendant leur implémentation dans les classes dédiées */
-    private double[] coordsVille = {21.422510, 39.826168};
+    private String nomVille;
+    private double[] coordsVille;
     private double distance;
     private double seuilAngle = 10;
 
@@ -87,12 +105,10 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             @Override
             public void onClick(View view) {
                 try {
-                    Log.d("input", inputVille.getText().toString());
-                    inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
-                    inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
-                    corrige = true;
-                    txtAz1.setText(inverseUtilisateurVille.azi1 + " ");
-                    txtS12.setText(inverseUtilisateurVille.s12 + " ");
+                    nomVille = inputVille.getText().toString();
+                    bg background = new bg(getApplicationContext());
+                    background.execute(nomVille);
+                    Log.d("input", nomVille);
                 } catch (NullPointerException e) {
                     Log.d("Error", String.valueOf(e)); // l'appareil n'a pas encore été géolocalisé
                     progressBar.setVisibility(View.VISIBLE);
@@ -104,7 +120,12 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     @Override
     protected void onStart() {
         super.onStart();
-        mOrientation.startListening(this);
+        try {
+            mOrientation.startListening(this);
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -174,4 +195,75 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             alertDialog.show();
         }
     };
+
+    private class bg extends AsyncTask<String, Void, double[]> {
+
+        Context c;
+
+        public bg(Context context){
+            this.c = context;
+        }
+
+        @Override
+        protected double[] doInBackground(String... strings) {
+            String result = "";
+            String nomVille = strings[0];
+            String connexion = "http://192.168.1.51/logVille.php";
+            try {
+                URL url = new URL(connexion);
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("POST");
+                http.setDoInput(true);
+                http.setDoOutput(true);
+                OutputStream ops = http.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops, "UTF-8"));
+                String data = URLEncoder.encode("nomVille", "UTF-8") + "=" + URLEncoder.encode(nomVille, "UTF-8");
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                InputStream ips = http.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips, "UTF-8"));
+                String line;
+                while((line = reader.readLine()) != null){
+                    result += line;
+                }
+                reader.close();
+                ips.close();
+                http.disconnect();
+                JSONArray jArray = new JSONArray(result);
+                String stringCoords = jArray.getJSONObject(0).getString("Coordinates");
+                double latVille = Double.parseDouble(stringCoords.split(",")[0]);
+                double longVille = Double.parseDouble(stringCoords.split(",")[1]);
+                coordsVille = new double[]{latVille, longVille};
+                return coordsVille;
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (IOException e) { // échec de connexion
+                Log.d("___connexion___", "error");
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return coordsVille;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(double[] coordsVille) {
+            super.onPostExecute(coordsVille);
+            inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
+            inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+            corrige = true;
+            txtAz1.setText(inverseUtilisateurVille.azi1 + " ");
+            txtS12.setText(inverseUtilisateurVille.s12 + " ");
+        }
+    }
 }

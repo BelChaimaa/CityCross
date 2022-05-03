@@ -21,7 +21,7 @@ public class GuidageView extends View {
         paint = new Paint();
         //paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.BLUE);
+        //paint.setColor(Color.BLUE);
         paint.setStrokeWidth(5);
 
         az = azimuth;
