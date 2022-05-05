@@ -10,12 +10,12 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
-        android:layout_width="255dp"
-        android:layout_height="49dp"
+        android:layout_width="256dp"
+        android:layout_height="59dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/inputVille"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/inputVille"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023">
 
@@ -23,21 +23,21 @@
             android:id="@+id/inputVille"
             android:layout_width="match_parent"
             android:layout_height="62dp"
-            android:hint="ville" />
+            android:hint="Ville" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/btnVille"
+        android:id="@+id/btnChercher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#009688"
         android:text="Chercher"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.309"
-        app:layout_constraintStart_toEndOf="@+id/inputVille"
+        app:layout_constraintHorizontal_bias="0.946"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.024" />
+        app:layout_constraintVertical_bias="0.062" />
 
     <TextView
         android:id="@+id/txtDirection"
@@ -46,10 +46,10 @@
         android:text="Direction"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.208"
+        app:layout_constraintHorizontal_bias="0.219"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
+        app:layout_constraintVertical_bias="0.121" />
 
     <TextView
         android:id="@+id/txtAz1"
@@ -58,10 +58,10 @@
         android:text="azimuth"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.597"
+        app:layout_constraintHorizontal_bias="0.66"
         app:layout_constraintStart_toEndOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.048" />
+        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
+        app:layout_constraintVertical_bias="0.35" />
 
     <TextView
         android:id="@+id/txtS12"
@@ -70,10 +70,10 @@
         android:text="Distance"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toStartOf="@+id/txtAz1"
-        app:layout_constraintHorizontal_bias="0.536"
+        app:layout_constraintHorizontal_bias="0.563"
         app:layout_constraintStart_toEndOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/btnVille"
-        app:layout_constraintVertical_bias="0.143" />
+        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
+        app:layout_constraintVertical_bias="0.432" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -85,7 +85,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnVille"
+        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
         app:layout_constraintVertical_bias="0.447" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutEllipsoide"
+        android:layout_width="262dp"
+        android:layout_height="59dp"
+        app:layout_constraintBottom_toTopOf="@+id/txtDirection"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputEllipsoide"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Ellipsoïde" />
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

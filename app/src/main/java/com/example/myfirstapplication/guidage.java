@@ -54,8 +54,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
     private ConstraintLayout initLayout;
     private ProgressBar progressBar;
-    private Button btnVille;
+    private Button btnChercher;
     private TextInputEditText inputVille;
+    private TextInputEditText inputEllipsoide;
     private TextView txtDirection;
     private TextView txtAz1;
     private TextView txtS12;
@@ -73,9 +74,13 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     private double[] coordsUtilisateur;
     private double direction;
     private String nomVille;
+    private int numEllipsoide;
     private double[] coordsVille;
+    private double[] paramEllipsoide;
     private double distance;
     private double seuilAngle = 10;
+
+    private boolean useDefault;
 
 
     @Override
@@ -93,19 +98,28 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
         initLayout = findViewById(R.id.initLayout);
         progressBar = findViewById(R.id.progressBar);
-        btnVille = findViewById(R.id.btnVille);
+        btnChercher = findViewById(R.id.btnChercher);
         inputVille = findViewById(R.id.inputVille);
+        inputEllipsoide = findViewById(R.id.inputEllipsoide);
         txtDirection = findViewById(R.id.txtDirection);
         txtAz1 = findViewById(R.id.txtAz1);
         txtS12 = findViewById(R.id.txtS12);
 
         mOrientation = new Orientation(this);
 
-        btnVille.setOnClickListener(new View.OnClickListener() {
+        btnChercher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                useDefault = true;
                 try {
                     nomVille = inputVille.getText().toString();
+                    try {
+                        numEllipsoide = Integer.parseInt(inputEllipsoide.getText().toString());
+                    } catch(NumberFormatException e){
+                        e.printStackTrace();
+                    }
+                    bgEllipsoide backgroundEllipsoide = new bgEllipsoide(getApplicationContext());
+                    backgroundEllipsoide.execute(numEllipsoide);
                     bg background = new bg(getApplicationContext());
                     background.execute(nomVille);
                     Log.d("input", nomVille);
@@ -208,9 +222,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         protected double[] doInBackground(String... strings) {
             String result = "";
             String nomVille = strings[0];
-            String connexion = "http://192.168.1.51/logVille.php";
+            String connexionVille = "http://192.168.1.51/logVille.php";
             try {
-                URL url = new URL(connexion);
+                URL url = new URL(connexionVille);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
                 http.setRequestMethod("POST");
                 http.setDoInput(true);
@@ -259,11 +273,169 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         @Override
         protected void onPostExecute(double[] coordsVille) {
             super.onPostExecute(coordsVille);
-            inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
-            inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+            if(useDefault){
+                inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
+                inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+            } else {
+                Geodesic geo = new Geodesic(paramEllipsoide[0], paramEllipsoide[1]);
+                inverseUtilisateurVille = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
+                inverseUtilisateurNordMagnetique = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+            }
             corrige = true;
             txtAz1.setText(inverseUtilisateurVille.azi1 + " ");
             txtS12.setText(inverseUtilisateurVille.s12 + " ");
+        }
+    }
+
+    private class bgEllipsoide extends AsyncTask<Integer, Void, double[]> {
+
+        Context c;
+
+        public bgEllipsoide(Context context) {
+            this.c = context;
+        }
+
+        private boolean getParamMethod1(String textEllipsoideString){
+            String aS = "";
+            String bS = "";
+            if(textEllipsoideString.matches(".*\\SPHEROID\\b.*")){
+                if(textEllipsoideString.split("SPHEROID")[1].split(",").length > 1){
+                    aS = textEllipsoideString.split("SPHEROID")[1].split(",")[1];
+                    bS = textEllipsoideString.split("SPHEROID")[1].split(",")[2];
+                    if(aS.matches("[+-]?\\d*(\\.\\d+)?") && bS.matches("[+-]?\\d*(\\.\\d+)?") && aS != "" && bS != "" ){
+                        Double a = Double.parseDouble(aS);
+                        Double f = 1/Double.parseDouble(bS);
+                        paramEllipsoide = new double[]{a, f};
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        private boolean getParamMethod2(String paramEllipsoideString){
+            String aS = "";
+            String bS = "";
+            int egal = 0;
+            for (char c: paramEllipsoideString.toCharArray()) {
+                if (egal == 0) {
+                    if (c == '=') {
+                        egal += 1;
+                    }
+                } else if (egal == 1) {
+                    if (c == '=') {
+                        egal += 1;
+                    }
+                } else if (egal == 2) {
+                    if (c == ' ') {
+                        egal += 1;
+                    } else {
+                        aS += c;
+                    }
+                } else if (egal == 3) {
+                    if (c == '=') {
+                        egal += 1;
+                    }
+                } else if (egal == 4) {
+                    if (c == ' ') {
+                        egal += 1;
+                    } else {
+                        bS += c;
+                    }
+                }
+            }
+            if(aS.matches("[+-]?\\d*(\\.\\d+)?") && bS.matches("[+-]?\\d*(\\.\\d+)?") && aS != "" && bS != "" ) {
+                Double a = Double.parseDouble(aS);
+                Double b = Double.parseDouble(bS);
+                paramEllipsoide = new double[]{a, (a - b) / a};
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected double[] doInBackground(Integer... integers) {
+            paramEllipsoide = new double[]{0, 0};
+            String result = "";
+            Integer numEllipsoide = integers[0];
+            String connexionEllipsoide = "http://192.168.1.51/logEllipsoide.php";
+            try {
+                URL url = new URL(connexionEllipsoide);
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("POST");
+                http.setDoInput(true);
+                http.setDoOutput(true);
+                OutputStream ops = http.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops, "UTF-8"));
+                String data = URLEncoder.encode("numEllipsoide", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numEllipsoide), "UTF-8");
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                InputStream ips = http.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips, "UTF-8"));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result += line;
+                }
+                reader.close();
+                ips.close();
+                http.disconnect();
+                Log.d("___result___", result);
+                JSONArray jArray = new JSONArray(result);
+                String paramEllipsoideString = "";
+                String textEllipsoideString = "";
+                try {
+                    textEllipsoideString = jArray.getJSONObject(0).getString("srtext");
+                    paramEllipsoideString = jArray.getJSONObject(0).getString("proj4text");
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+                if(getParamMethod1(textEllipsoideString)){
+                    getParamMethod1(textEllipsoideString);
+                } else {
+                    getParamMethod2(paramEllipsoideString);
+                }
+                return paramEllipsoide;
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (IOException e) { // échec de connexion
+                Log.d("___connexion___", "error");
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return paramEllipsoide;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(double[] paramEllipsoide) {
+            super.onPostExecute(paramEllipsoide);
+            if (paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
+
+                alertDialog.setTitle("Ellipsoïde");
+                alertDialog.setMessage("L'ellipsoïde renseigné n'est pas reconnu par la base de données. L'ellipsoïde WGS84 a été utilisée par défault");
+                alertDialog.setPositiveButton("retour", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                alertDialog.show();
+            } else {
+                useDefault = false;
+            }
+            Log.d("____param_____", String.valueOf(paramEllipsoide[0]));
+            Log.d("____param_____", String.valueOf(paramEllipsoide[1]));
         }
     }
 }
