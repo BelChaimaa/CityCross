@@ -13,17 +13,17 @@
         android:layout_width="255dp"
         android:layout_height="49dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/inputVille"
+        app:layout_constraintEnd_toEndOf="@+id/inputDistance"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/inputVille"
+        app:layout_constraintStart_toStartOf="@+id/inputDistance"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputVille"
+            android:id="@+id/inputDistance"
             android:layout_width="match_parent"
             android:layout_height="62dp"
-            android:hint="ville" />
+            android:hint="Distance" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -34,10 +34,10 @@
         android:text="Chercher"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.309"
-        app:layout_constraintStart_toEndOf="@+id/inputVille"
+        app:layout_constraintHorizontal_bias="0.619"
+        app:layout_constraintStart_toEndOf="@+id/textInputLayout"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.024" />
+        app:layout_constraintVertical_bias="0.023" />
 
     <TextView
         android:id="@+id/txtDirection"
@@ -52,28 +52,16 @@
         app:layout_constraintVertical_bias="0.023" />
 
     <TextView
-        android:id="@+id/txtAz1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="azimuth"
-        app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.597"
-        app:layout_constraintStart_toEndOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
-        app:layout_constraintVertical_bias="0.048" />
-
-    <TextView
         android:id="@+id/txtS12"
         android:layout_width="56dp"
         android:layout_height="17dp"
+        android:layout_marginStart="124dp"
         android:text="Distance"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        app:layout_constraintEnd_toStartOf="@+id/txtAz1"
-        app:layout_constraintHorizontal_bias="0.536"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtDirection"
         app:layout_constraintTop_toBottomOf="@+id/btnChercher"
-        app:layout_constraintVertical_bias="0.143" />
+        app:layout_constraintVertical_bias="0.074" />
 
     <ProgressBar
         android:id="@+id/progressBar"

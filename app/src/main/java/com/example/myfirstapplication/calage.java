@@ -93,7 +93,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         initLayout = findViewById(R.id.initLayout);
         progressBar = findViewById(R.id.progressBar);
         btnVille = findViewById(R.id.btnChercher);
-        inputVille = findViewById(R.id.inputVille);
+        inputVille = findViewById(R.id.inputDistance);
         txtDirection = findViewById(R.id.txtDirection);
         txtAz1 = findViewById(R.id.txtAz1);
         txtS12 = findViewById(R.id.txtS12);

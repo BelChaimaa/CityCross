@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 public class guidage extends AppCompatActivity implements Orientation.Listener {
 
@@ -74,7 +75,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     private double[] coordsUtilisateur;
     private double direction;
     private String nomVille;
-    private int numEllipsoide;
+    private String numEllipsoide;
     private double[] coordsVille;
     private double[] paramEllipsoide;
     private double distance;
@@ -99,7 +100,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         initLayout = findViewById(R.id.initLayout);
         progressBar = findViewById(R.id.progressBar);
         btnChercher = findViewById(R.id.btnChercher);
-        inputVille = findViewById(R.id.inputVille);
+        inputVille = findViewById(R.id.inputDistance);
         inputEllipsoide = findViewById(R.id.inputEllipsoide);
         txtDirection = findViewById(R.id.txtDirection);
         txtAz1 = findViewById(R.id.txtAz1);
@@ -113,11 +114,8 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
                 useDefault = true;
                 try {
                     nomVille = inputVille.getText().toString();
-                    try {
-                        numEllipsoide = Integer.parseInt(inputEllipsoide.getText().toString());
-                    } catch(NumberFormatException e){
-                        e.printStackTrace();
-                    }
+                    numEllipsoide = inputEllipsoide.getText().toString();
+
                     bgEllipsoide backgroundEllipsoide = new bgEllipsoide(getApplicationContext());
                     backgroundEllipsoide.execute(numEllipsoide);
                     bg background = new bg(getApplicationContext());
@@ -287,7 +285,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         }
     }
 
-    private class bgEllipsoide extends AsyncTask<Integer, Void, double[]> {
+    private class bgEllipsoide extends AsyncTask<String, Void, double[]> {
 
         Context c;
 
@@ -355,10 +353,10 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         }
 
         @Override
-        protected double[] doInBackground(Integer... integers) {
+        protected double[] doInBackground(String... strings) {
             paramEllipsoide = new double[]{0, 0};
             String result = "";
-            Integer numEllipsoide = integers[0];
+            String numEllipsoide = strings[0];
             String connexionEllipsoide = "http://192.168.1.51/logEllipsoide.php";
             try {
                 URL url = new URL(connexionEllipsoide);
@@ -368,7 +366,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
                 http.setDoOutput(true);
                 OutputStream ops = http.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops, "UTF-8"));
-                String data = URLEncoder.encode("numEllipsoide", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(numEllipsoide), "UTF-8");
+                String data = URLEncoder.encode("numEllipsoide", "UTF-8") + "=" + URLEncoder.encode(numEllipsoide, "UTF-8");
                 writer.write(data);
                 writer.flush();
                 writer.close();
@@ -420,11 +418,14 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         @Override
         protected void onPostExecute(double[] paramEllipsoide) {
             super.onPostExecute(paramEllipsoide);
-            if (paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
+            Log.d("___e___", numEllipsoide.toLowerCase());
+            if (numEllipsoide.equalsIgnoreCase("wgs84")){
+                useDefault = true;
+            } else if(paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
 
                 alertDialog.setTitle("Ellipsoïde");
-                alertDialog.setMessage("L'ellipsoïde renseigné n'est pas reconnu par la base de données. L'ellipsoïde WGS84 a été utilisée par défault");
+                alertDialog.setMessage("L'ellipsoïde renseigné n'est pas reconnu par la base de données. L'ellipsoïde WGS84 a été utilisé par défault");
                 alertDialog.setPositiveButton("retour", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
