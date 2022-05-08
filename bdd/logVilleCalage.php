@@ -2,11 +2,11 @@
 $servername = "localhost";
 $username = "root";
 $password = "root";
-$numEllipsoide = $_POST["numEllipsoide"];
+$distance = $_POST["distance"];
 
 $link = new mysqli($servername, $username, $password);
 $tab = [];
-$requete = "SELECT srtext, proj4text FROM citycross.ellipsoides WHERE srtext LIKE '%GEOGCS%\"$numEllipsoide%DATUM%' LIMIT 1";
+$requete = "SELECT Name, Coordinates FROM citycross.villes ORDER BY Population DESC";
 if ($result = mysqli_query($link, $requete)) {
     while ($ligne = mysqli_fetch_assoc($result)) {
         $tab[] = $ligne;

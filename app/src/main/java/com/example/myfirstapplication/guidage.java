@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -94,7 +95,27 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             ActivityCompat.requestPermissions(guidage.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             return;
         } else {
+            Log.d("__pos__", "cherche...");
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListenerGPS);
+
+            long maxCounter = 20000;
+            long diff = 1000;
+
+            new CountDownTimer(maxCounter, diff) {
+
+                public void onTick(long millisUntilFinished) {
+                    long diff = maxCounter - millisUntilFinished;
+                }
+
+                public void onFinish() {
+                    if (ActivityCompat.checkSelfPermission(guidage.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(guidage.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    Log.d("__pos__", "GPS prend trop de temps, on essai internet");
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListenerGPS);
+                }
+
+            }.start();
         }
 
         initLayout = findViewById(R.id.initLayout);
@@ -168,7 +189,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     LocationListener locationListenerGPS=new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            Log.d("display location", "Latitude: "+location.getLatitude()+", longitude: "+location.getLongitude());
+            Log.d("__location__", "Latitude: "+location.getLatitude()+", longitude: "+location.getLongitude());
             coordsUtilisateur = new double[]{location.getLatitude(), location.getLongitude()};
             progressBar.setVisibility(View.INVISIBLE);
         }
@@ -185,7 +206,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
         @Override
         public void onProviderDisabled(String provider) {
-            Log.d("display location", "location = null");
+            Log.d("__location__", "location = null");
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
 
             alertDialog.setTitle("GPS");
