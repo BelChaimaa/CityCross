@@ -13,9 +13,9 @@
         android:layout_width="255dp"
         android:layout_height="49dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/inputDistance"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/inputDistance"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023">
 
@@ -23,7 +23,7 @@
             android:id="@+id/inputDistance"
             android:layout_width="match_parent"
             android:layout_height="62dp"
-            android:hint="Distance" />
+            android:hint="Distance (en m)" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -37,7 +37,7 @@
         app:layout_constraintHorizontal_bias="0.619"
         app:layout_constraintStart_toEndOf="@+id/textInputLayout"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintVertical_bias="0.024" />
 
     <TextView
         android:id="@+id/txtDirection"
@@ -46,10 +46,10 @@
         android:text="Direction"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.208"
+        app:layout_constraintHorizontal_bias="0.222"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
+        app:layout_constraintVertical_bias="0.029" />
 
     <TextView
         android:id="@+id/txtS12"
@@ -59,9 +59,10 @@
         android:text="Distance"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.437"
         app:layout_constraintStart_toEndOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
-        app:layout_constraintVertical_bias="0.074" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
+        app:layout_constraintVertical_bias="0.114" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -75,5 +76,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnChercher"
         app:layout_constraintVertical_bias="0.447" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
+        android:layout_width="255dp"
+        android:layout_height="59dp"
+        app:layout_constraintBottom_toTopOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+        app:layout_constraintVertical_bias="0.064">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputEllipsoide"
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:hint="Ellipsoïde: WGS84..." />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="154dp"
+        android:layout_height="wrap_content"
+        android:hint="Nombre de villes..."
+        app:layout_constraintBottom_toTopOf="@+id/txtS12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textInputLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/btnChercher">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="hint" />
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
