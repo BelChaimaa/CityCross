@@ -5,22 +5,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
 public class MainActivity extends AppCompatActivity {
 //on initialise les boutons
-    private ToggleButton calage;
-    private ToggleButton guidage;
-    private ToggleButton savoirPlus;
+    private LinearLayout calage;
+    private LinearLayout guidage;
+    private LinearLayout savoirPlus;
+    private LinearLayout export;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //on recupere les boutons par id
-        calage= findViewById(R.id.toggleButton);
-        guidage=findViewById(R.id.toggleButton3);
-        savoirPlus=findViewById(R.id.toggleButton4);
+        calage= findViewById(R.id.calage);
+        guidage=findViewById(R.id.guidage);
+        savoirPlus=findViewById(R.id.information);
+        export =findViewById(R.id.export);
 
         //ajouter evenement setOnclickListener sur les boutons
         calage.setOnClickListener(new View.OnClickListener() {
@@ -47,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        export.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openActivityExport();
+
+            }
+        });
 
     }
 
@@ -63,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void openActivitySavoirPlus(){
         Intent intent=new Intent(this,SavoirPlus.class);
+        startActivity(intent);
+    }
+    public void openActivityExport() {
+        Intent intent=new Intent(this,guidage.class);
         startActivity(intent);
     }
 
