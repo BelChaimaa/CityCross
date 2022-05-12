@@ -15,11 +15,10 @@
         android:layout_marginStart="180dp"
         android:layout_marginTop="47dp"
         android:layout_marginEnd="171dp"
-        android:layout_marginBottom="665dp"
         android:text="@string/citycross"
         android:textColor="#090808"
         android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/toggleButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,53 +28,64 @@
         android:layout_width="136dp"
         android:layout_height="48dp"
         android:layout_marginStart="120dp"
-        android:layout_marginTop="73dp"
         android:layout_marginEnd="120dp"
-        android:layout_marginBottom="533dp"
         android:background="#BFE1BD75"
         android:ellipsize="marquee"
         android:text="@string/togglebutton"
         android:textColor="#0E0E0D"
         android:textOff="@string/calage"
         android:textOn="@string/calage"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/toggleButton3"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.742"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.725" />
 
     <ToggleButton
         android:id="@+id/toggleButton3"
         android:layout_width="127dp"
         android:layout_height="48dp"
         android:layout_marginStart="120dp"
-        android:layout_marginTop="63dp"
         android:layout_marginEnd="120dp"
-        android:layout_marginBottom="63dp"
         android:background="#BFE1BD75"
         android:text="@string/togglebutton2"
         android:textOff="@string/guidage"
         android:textOn="@string/guidage"
         app:layout_constraintBottom_toTopOf="@+id/toggleButton4"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toggleButton" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.863" />
 
     <ToggleButton
         android:id="@+id/toggleButton4"
         android:layout_width="120dp"
         android:layout_height="48dp"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="120dp"
-        android:layout_marginBottom="63dp"
         android:background="#BFE1BD75"
         android:text="@string/togglebutton3"
         android:textColor="#101112"
         android:textOff="@string/en_savoir_plus"
         android:textOn="@string/en_savoir_plus"
+        app:layout_constraintBottom_toTopOf="@+id/toggleButton2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.873" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exporter"
+        android:textOff="Exporter"
+        android:textOn="Exporter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toggleButton3" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.916" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

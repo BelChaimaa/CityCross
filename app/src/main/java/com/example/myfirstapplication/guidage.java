@@ -1,5 +1,7 @@
 package com.example.myfirstapplication;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,19 +14,25 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.provider.Settings;
+
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import net.sf.geographiclib.*; // librairie externe qui permet d'effectuer les calculs géodésiques comme le problème inverse, situé dans app/libs
@@ -34,6 +42,7 @@ import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,9 +54,16 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Locale;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 
 public class guidage extends AppCompatActivity implements Orientation.Listener {
+
+    private static final int RC_STORAGE_WRITE_PERMS = 100;
+
+    private static final String FILENAME = "Guidage.txt";
+    private static final String FOLDERNAME = "CityCross/Guidage";
 
     final int red = Color.parseColor("#F44336");
     final int green = Color.parseColor("#4CAF50");
@@ -59,9 +75,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     private Button btnChercher;
     private TextInputEditText inputVille;
     private TextInputEditText inputEllipsoide;
-    private TextView txtDirection;
-    private TextView txtAz1;
     private TextView txtS12;
+    private FloatingActionButton btnExport;
+    private SearchView fileNameInput;
 
     private GuidageView guidageView;
 
@@ -84,6 +100,8 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
     private boolean useDefault;
 
+    private String ip = "192.168.1.51";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +114,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             return;
         } else {
             Log.d("__pos__", "cherche...");
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListenerGPS);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListenerGPS);
 
-            long maxCounter = 20000;
+            long maxCounter = 5000;
             long diff = 1000;
 
             new CountDownTimer(maxCounter, diff) {
@@ -114,7 +132,6 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
                     Log.d("__pos__", "GPS prend trop de temps, on essai internet");
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListenerGPS);
                 }
-
             }.start();
         }
 
@@ -123,9 +140,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         btnChercher = findViewById(R.id.btnChercher);
         inputVille = findViewById(R.id.inputDistance);
         inputEllipsoide = findViewById(R.id.inputEllipsoide);
-        txtDirection = findViewById(R.id.txtDirection);
-        txtAz1 = findViewById(R.id.txtAz1);
         txtS12 = findViewById(R.id.txtS12);
+        btnExport = findViewById(R.id.btnExport);
+        fileNameInput = findViewById(R.id.fileNameInput);
 
         mOrientation = new Orientation(this);
 
@@ -134,6 +151,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             public void onClick(View view) {
                 useDefault = true;
                 try {
+                    btnChercher.setEnabled(false);
                     nomVille = inputVille.getText().toString();
                     numEllipsoide = inputEllipsoide.getText().toString();
 
@@ -145,6 +163,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
                 } catch (NullPointerException e) {
                     Log.d("Error", String.valueOf(e)); // l'appareil n'a pas encore été géolocalisé
                     progressBar.setVisibility(View.VISIBLE);
+                    btnChercher.setEnabled(false);
                 }
             }
         });
@@ -171,8 +190,9 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     @Override
     public void onOrientationChanged(double azimuth) {
         if(corrige){
+            btnChercher.setEnabled(true);
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
-            txtDirection.setText(Double.toString(direction));
+            //Log.d("___direction___", String.valueOf(azimuth));
             initLayout.removeView(guidageView);
             guidageView = new GuidageView(this, inverseUtilisateurVille.azi1, direction);
             initLayout.addView(guidageView);
@@ -181,8 +201,6 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             } else {
                 initLayout.setBackgroundColor(red);
             }
-        } else {
-            txtDirection.setText(Double.toString(azimuth));
         }
     }
 
@@ -192,6 +210,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             Log.d("__location__", "Latitude: "+location.getLatitude()+", longitude: "+location.getLongitude());
             coordsUtilisateur = new double[]{location.getLatitude(), location.getLongitude()};
             progressBar.setVisibility(View.INVISIBLE);
+            btnChercher.setEnabled(true);
         }
 
         @Override
@@ -229,6 +248,48 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         }
     };
 
+    public String createResultString(){
+        String res = "Nom: " + nomVille + " Azimuth: " + String.format("%.3f", inverseUtilisateurVille.azi1) + " Distance: " + String.format("%.2f", inverseUtilisateurVille.s12) + " mètres Ellispoïde: " + numEllipsoide + "\n";
+        Log.d("___res___", res);
+        return res;
+    }
+
+    private void writeOnExternalStorage(String fileName) {
+        if (Export.isExternalStorageWritable()) {
+            File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            Export.setTextInStorage(directory, guidage.this, fileName, FOLDERNAME, createResultString());
+        } else {
+            Toast.makeText(guidage.this, "Impossible d'exporter les données dans le stockage externe, veuillez vérifier les autorisations de l'application.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == RC_STORAGE_WRITE_PERMS) {
+            if (grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                readFromStorage();
+            }
+        }
+    }
+
+    private boolean checkWriteExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{WRITE_EXTERNAL_STORAGE},
+                    RC_STORAGE_WRITE_PERMS);
+            return true;
+        }
+        return false;
+    }
+
+    private void readFromStorage(){
+        if (checkWriteExternalStoragePermission()) return;
+    }
+
+
+
     private class bg extends AsyncTask<String, Void, double[]> {
 
         Context c;
@@ -241,7 +302,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         protected double[] doInBackground(String... strings) {
             String result = "";
             String nomVille = strings[0];
-            String connexionVille = "http://192.168.1.51/logVille.php";
+            String connexionVille = "http://"+ip+"/logVille.php";
             try {
                 URL url = new URL(connexionVille);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -292,17 +353,64 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         @Override
         protected void onPostExecute(double[] coordsVille) {
             super.onPostExecute(coordsVille);
-            if(useDefault){
-                inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
-                inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
-            } else {
-                Geodesic geo = new Geodesic(paramEllipsoide[0], paramEllipsoide[1]);
-                inverseUtilisateurVille = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
-                inverseUtilisateurNordMagnetique = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+            try {
+                if (useDefault) {
+                    inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
+                    inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+                } else {
+                    Geodesic geo = new Geodesic(paramEllipsoide[0], paramEllipsoide[1]);
+                    inverseUtilisateurVille = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
+                    inverseUtilisateurNordMagnetique = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
+                }
+                corrige = true;
+                //txtS12.setEnabled(true);
+                NumberFormat format = new DecimalFormat("0.#");
+                String distanceMessage = getString(R.string.distance, String.format("%.2f", inverseUtilisateurVille.s12));
+
+                Log.d("___dist", distanceMessage);
+                txtS12.setText(distanceMessage);
+
+                File directory = getFilesDir();
+                String res = createResultString();
+                Export.setTextInStorage(directory, guidage.this, FILENAME, FOLDERNAME, res);
+
+                btnExport.setEnabled(true);
+                btnExport.setVisibility(View.VISIBLE);
+                btnExport.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(fileNameInput.getVisibility() == View.VISIBLE){
+                            fileNameInput.setVisibility(View.INVISIBLE);
+                        } else {
+                            fileNameInput.setVisibility(View.VISIBLE);
+                        }
+                        fileNameInput.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                            @Override
+                            public boolean onQueryTextSubmit(String query) {
+                                guidage.this.writeOnExternalStorage(query);
+                                fileNameInput.setVisibility(View.INVISIBLE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onQueryTextChange(String newText) {
+                                return false;
+                            }
+                        });
+                    }
+                });
+            } catch(NullPointerException e){
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
+
+                alertDialog.setTitle("Ville");
+                alertDialog.setMessage("La ville renseignée n'est pas reconnu par la base de données. Veuillez écrire une autre ville.");
+                alertDialog.setPositiveButton("retour", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                alertDialog.show();
             }
-            corrige = true;
-            txtAz1.setText(inverseUtilisateurVille.azi1 + " ");
-            txtS12.setText(inverseUtilisateurVille.s12 + " ");
         }
     }
 
@@ -377,8 +485,11 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         protected double[] doInBackground(String... strings) {
             paramEllipsoide = new double[]{0, 0};
             String result = "";
-            String numEllipsoide = strings[0];
-            String connexionEllipsoide = "http://192.168.1.51/logEllipsoide.php";
+            numEllipsoide = strings[0];
+            if(numEllipsoide.equals("")){
+                numEllipsoide = "WGS84";
+            }
+            String connexionEllipsoide = "http://"+ip+"/logEllipsoide.php";
             try {
                 URL url = new URL(connexionEllipsoide);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -443,6 +554,8 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             if (numEllipsoide.equalsIgnoreCase("wgs84")){
                 useDefault = true;
             } else if(paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
+                numEllipsoide = "WGS84";
+                useDefault = true;
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
 
                 alertDialog.setTitle("Ellipsoïde");

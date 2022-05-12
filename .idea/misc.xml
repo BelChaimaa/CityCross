@@ -12,8 +12,13 @@
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_savoir_plus.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/chaim/AndroidStudioProjects/MyFirstApplication/app/src/main/res/layout/activity_splash_screen.xml" value="0.2" />
         <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_calage.xml" value="0.33" />
+        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_export.xml" value="0.2" />
         <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_guidage.xml" value="0.25" />
-        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_main.xml" value="0.17572463768115942" />
+        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_stockage_calage.xml" value="0.19746376811594202" />
+        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/activity_stockage_guidage.xml" value="0.19746376811594202" />
+        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/content_export.xml" value="0.2" />
+        <entry key="..\:/omran/AndroidStudioProjects/CityCross2/app/src/main/res/layout/fragment_first.xml" value="0.2" />
       </map>
     </option>
   </component>

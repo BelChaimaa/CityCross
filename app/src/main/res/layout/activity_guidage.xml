@@ -31,6 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#009688"
+        android:enabled="false"
         android:text="Chercher"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,40 +41,17 @@
         app:layout_constraintVertical_bias="0.062" />
 
     <TextView
-        android:id="@+id/txtDirection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Direction"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/txtS12"
+        android:layout_width="373dp"
+        android:layout_height="65dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.219"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnChercher"
-        app:layout_constraintVertical_bias="0.121" />
-
-    <TextView
-        android:id="@+id/txtAz1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="azimuth"
-        app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
-        app:layout_constraintStart_toEndOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
         app:layout_constraintVertical_bias="0.35" />
-
-    <TextView
-        android:id="@+id/txtS12"
-        android:layout_width="56dp"
-        android:layout_height="17dp"
-        android:text="Distance"
-        app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        app:layout_constraintEnd_toStartOf="@+id/txtAz1"
-        app:layout_constraintHorizontal_bias="0.563"
-        app:layout_constraintStart_toEndOf="@+id/txtDirection"
-        app:layout_constraintTop_toBottomOf="@+id/btnChercher"
-        app:layout_constraintVertical_bias="0.432" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -92,7 +70,6 @@
         android:id="@+id/textInputLayoutEllipsoide"
         android:layout_width="262dp"
         android:layout_height="59dp"
-        app:layout_constraintBottom_toTopOf="@+id/txtDirection"
         app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
         app:layout_constraintStart_toStartOf="@+id/textInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
@@ -103,5 +80,35 @@
             android:layout_height="match_parent"
             android:hint="Ellipsoïde: WGS84..." />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnExport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:enabled="false"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.946"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.976"
+        app:srcCompat="@android:drawable/stat_sys_upload" />
+
+    <SearchView
+        android:id="@+id/fileNameInput"
+        android:layout_width="174dp"
+        android:layout_height="50dp"
+        android:background="#2A424C"
+        android:backgroundTint="#2F4757"
+        android:elevation="10dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btnExport"
+        app:layout_constraintHorizontal_bias="0.862"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar"
+        app:layout_constraintVertical_bias="0.794" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

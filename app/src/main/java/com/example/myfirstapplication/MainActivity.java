@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton calage;
     private ToggleButton guidage;
     private ToggleButton savoirPlus;
+    private ToggleButton exporter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         calage= findViewById(R.id.toggleButton);
         guidage=findViewById(R.id.toggleButton3);
         savoirPlus=findViewById(R.id.toggleButton4);
+        exporter=findViewById(R.id.toggleButton2);
 
         //ajouter evenement setOnclickListener sur les boutons
         calage.setOnClickListener(new View.OnClickListener() {
@@ -48,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        exporter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openActivityExport();
+
+            }
+        });
     }
 
     public void openActivityguidage() {
@@ -66,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-
+    public void openActivityExport(){
+        Intent intent=new Intent(this,Export.class);
+        startActivity(intent);
+    }
 }

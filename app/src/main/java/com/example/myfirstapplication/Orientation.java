@@ -9,17 +9,28 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
+import java.text.DecimalFormat;
+
 public class Orientation implements SensorEventListener {
 
     public interface Listener {
         void onOrientationChanged(double azimuth);
     }
-
-    private static final int SENSOR_DELAY_MICROS = 100000 * 1000; // 16ms
+    //
+    double mAzimuth;
+    private SensorManager mSensorManager;
+    private Sensor mRotationV, mAccelerometer, mMagnetometer;
+    boolean haveSensor = false, haveSensor2 = false;
+    float[] rMat = new float[9];
+    float[] orientation = new float[3];
+    private float[] mLastAccelerometer = new float[3];
+    private float[] mLastMagnetometer = new float[3];
+    private boolean mLastAccelerometerSet = false;
+    private boolean mLastMagnetometerSet = false;
+    //
+    private static final int SENSOR_DELAY_MICROS = 1000000; // 16ms
 
     private final WindowManager mWindowManager;
-
-    private final SensorManager mSensorManager;
 
     @Nullable
     private final Sensor mRotationSensor;
@@ -37,13 +48,16 @@ public class Orientation implements SensorEventListener {
 
     public void startListening(Listener listener) {
         if (mListener == listener) {
+
             return;
         }
         mListener = listener;
         if (mRotationSensor == null) {
             return;
         }
-        mSensorManager.registerListener(this, mRotationSensor, SENSOR_DELAY_MICROS);
+        mSensorManager.registerListener(this, mRotationSensor, SENSOR_DELAY_MICROS, SENSOR_DELAY_MICROS);
+        mSensorManager.registerListener(this, mAccelerometer, SENSOR_DELAY_MICROS, SENSOR_DELAY_MICROS);
+        mSensorManager.registerListener(this, mMagnetometer, SENSOR_DELAY_MICROS, SENSOR_DELAY_MICROS);
     }
 
     public void stopListening() {
@@ -60,17 +74,25 @@ public class Orientation implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (mListener == null) {
-            return;
+
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            SensorManager.getRotationMatrixFromVector(rMat, event.values);
+            mAzimuth = Math.round(Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) * 1000.0) / 1000.0;
         }
-        if (mLastAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
-            return;
+
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+            mLastAccelerometerSet = true;
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+            mLastMagnetometerSet = true;
         }
-        // si le capteur dont la valeur a été modifiée est le capteur de rotation
-        if (event.sensor == mRotationSensor) {
-            // event.values renvoi le vecteur de rotationmesuré par le capteur de rotation
-            updateOrientation(event.values);
+        if (mLastAccelerometerSet && mLastMagnetometerSet) {
+            SensorManager.getRotationMatrix(rMat, null, mLastAccelerometer, mLastMagnetometer);
+            SensorManager.getOrientation(rMat, orientation);
+            mAzimuth = Math.round(Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) * 1000.0) / 1000.0;
         }
+        mListener.onOrientationChanged(mAzimuth);
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -84,6 +106,7 @@ public class Orientation implements SensorEventListener {
 
         // conversion en degrés
         float azimuth = (float)Math.toDegrees(orientation[0]);
+        //float azimuth = (float) (Math.toDegrees(SensorManager.getOrientation(rotationMatrix, orientation)[0]) + 360) % 360;
 
         mListener.onOrientationChanged(azimuth);
     }

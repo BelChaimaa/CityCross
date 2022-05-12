@@ -1,5 +1,6 @@
 package com.example.myfirstapplication;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,18 +12,23 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import net.sf.geographiclib.Geodesic;
@@ -33,6 +39,7 @@ import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,6 +55,11 @@ import java.util.ArrayList;
 
 public class calage extends AppCompatActivity implements Orientation.Listener {
 
+    private static final int RC_STORAGE_WRITE_PERMS = 100;
+
+    private static final String FILENAME = "Calage.txt";
+    private static final String FOLDERNAME = "CityCross/Calage";
+
     LocationManager locationManager;
 
     private ConstraintLayout initLayout;
@@ -56,16 +68,16 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     private TextInputEditText inputDistance;
     private TextInputEditText inputEllipsoide;
     private TextInputEditText inputNumber;
-    private TextView txtDirection;
-    private TextView txtAz1;
     private TextView txtS12;
+    private FloatingActionButton btnExport;
+    private SearchView fileNameInput;
 
     private CalageView calageView;
 
     private Orientation mOrientation;
     private boolean corrige = false;
 
-    private double[] coordsNordMagnetique = {81.08, -73.13};
+    private final double[] coordsNordMagnetique = {81.08, -73.13};
 
     private GeodesicData inverseUtilisateurNordMagnetique;
     private GeodesicData inverseUtilisateurVille;
@@ -74,14 +86,18 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     private double direction;
     private String numEllipsoide;
     private ArrayList<Object[]> villes = new ArrayList<>();
+    private ArrayList<Object[]> villesAll = new ArrayList<>();
     private double[] paramEllipsoide;
     private double distance;
-    private double seuil = 1000;
+    private double seuil = 10000;
     private double seuilAngle = 20;
+    private int nbVillesDefault = 20;
 
     private int villesNumber;
 
     private boolean useDefault;
+
+    private String ip = "192.168.1.51";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,9 +137,9 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         inputDistance = findViewById(R.id.inputDistance);
         inputEllipsoide = findViewById(R.id.inputEllipsoide);
         inputNumber = findViewById(R.id.inputNumber);
-        txtDirection = findViewById(R.id.txtDirection);
-        txtAz1 = findViewById(R.id.txtAz1);
         txtS12 = findViewById(R.id.txtS12);
+        btnExport = findViewById(R.id.btnExport);
+        fileNameInput = findViewById(R.id.fileNameInput);
 
         mOrientation = new Orientation(this);
 
@@ -131,9 +147,14 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             @Override
             public void onClick(View view) {
                 try {
+                    btnVille.setEnabled(false);
                     distance = Double.parseDouble(inputDistance.getText().toString());
                     numEllipsoide = inputEllipsoide.getText().toString();
-                    villesNumber = Integer.parseInt(inputNumber.getText().toString());
+                    try {
+                        villesNumber = Integer.parseInt(inputNumber.getText().toString());
+                    } catch(NumberFormatException e){
+                        villesNumber = nbVillesDefault;
+                    }
 
                     calage.bgEllipsoide backgroundEllipsoide = new calage.bgEllipsoide(getApplicationContext());
                     backgroundEllipsoide.execute(numEllipsoide);
@@ -144,6 +165,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                 } catch (NullPointerException e) {
                     Log.d("Error", String.valueOf(e)); // l'appareil n'a pas encore été géolocalisé
                     progressBar.setVisibility(View.VISIBLE);
+                    btnVille.setEnabled(false);
                 }
             }
         });
@@ -170,13 +192,11 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     @Override
     public void onOrientationChanged(double azimuth) {
         if(corrige){
+            btnVille.setEnabled(true);
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
-            txtDirection.setText(Double.toString(direction));
             initLayout.removeView(calageView);
-            calageView = new CalageView(this, villes, direction);
+            calageView = new CalageView(this, txtS12, villes, direction);
             initLayout.addView(calageView);
-        } else {
-            txtDirection.setText(Double.toString(azimuth));
         }
     }
 
@@ -185,7 +205,10 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         public void onLocationChanged(Location location) {
             Log.d("display location", "Latitude: "+location.getLatitude()+", longitude: "+location.getLongitude());
             coordsUtilisateur = new double[]{location.getLatitude(), location.getLongitude()};
-            progressBar.setVisibility(View.INVISIBLE);
+            if(progressBar.getVisibility() == View.VISIBLE){
+                progressBar.setVisibility(View.INVISIBLE);
+                btnVille.setEnabled(true);
+            }
             inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
         }
 
@@ -224,6 +247,48 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         }
     };
 
+    public String createResultString(){
+        String res = "";
+        for(Object[] ville: villesAll){
+            res += "Nom: " + ville[0] + " Azimuth: " + ville[1] + " Distance: " + ville[2] + " mètres Ellipsoïde: " + numEllipsoide + "\n";
+        }
+        return res;
+    }
+
+    private void writeOnExternalStorage(String fileName) {
+        if (Export.isExternalStorageWritable()) {
+            File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            Export.setTextInStorage(directory, calage.this, fileName, FOLDERNAME, createResultString());
+        } else {
+            Toast.makeText(calage.this, "Impossible d'exporter les données dans le stockage externe, veuillez vérifier les autorisations de l'application.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == RC_STORAGE_WRITE_PERMS) {
+            if (grantResults.length > 0 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                readFromStorage();
+            }
+        }
+    }
+
+    private boolean checkWriteExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{WRITE_EXTERNAL_STORAGE},
+                    RC_STORAGE_WRITE_PERMS);
+            return true;
+        }
+        return false;
+    }
+
+    private void readFromStorage(){
+        if (checkWriteExternalStoragePermission()) return;
+    }
+
     private class bg extends AsyncTask<Double, Void, ArrayList<Object[]>> {
 
         Context c;
@@ -237,7 +302,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             Log.d("__async__", "doinbackground");
             String result = "";
             Double distance = doubles[0];
-            String connexion = "http://192.168.1.51/logVilleCalage.php";
+            String connexion = "http://"+ip+"/logVilleCalage.php";
             try {
                 URL url = new URL(connexion);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -261,7 +326,6 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                 http.disconnect();
                 JSONArray jArray = new JSONArray(result);
                 Log.d("___result___", result);
-                villesNumber = 30; // = jArray.length() si on veut afficher toutes les villes
                 int i = 0;
                 int n = 0;
                 while(villes.size() < villesNumber && n < jArray.length()){
@@ -278,6 +342,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                     }
                     if(Math.abs(inverseUtilisateurVille.s12 - distance) < seuil){
                         boolean correct = true;
+                        villesAll.add(new Object[]{nom, Math.round(inverseUtilisateurVille.azi1*1000.0)/1000.0, String.format("%.2f", inverseUtilisateurVille.s12)});
                         for(Object[] ville: villes){
                             if(Math.abs(inverseUtilisateurVille.azi1 - Double.parseDouble(ville[1].toString())) < seuilAngle){
                                 correct = false;
@@ -285,7 +350,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                             }
                         }
                         if(correct){
-                            Object[] v = new Object[]{nom, inverseUtilisateurVille.azi1};
+                            Object[] v = new Object[]{nom, Math.round(inverseUtilisateurVille.azi1*1000.0)/1000.0, String.format("%.2f", inverseUtilisateurVille.s12)};
                             try {
                                 i++;
                                 villes.add(v);
@@ -297,7 +362,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                     }
                     n++;
                 }
-
+                Log.d("_______", "_____");
                 return villes;
             } catch (ProtocolException e) {
                 e.printStackTrace();
@@ -306,7 +371,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } catch (IOException e) { // échec de connexion
-                Log.d("___connexion___", "error");
+                Log.d("___connexion___", String.valueOf(e));
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -324,6 +389,36 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             super.onPostExecute(villes);
             corrige = true;
             Log.d("__villes__", String.valueOf(villes));
+
+            File directory = getFilesDir();
+            String res = createResultString();
+            Export.setTextInStorage(directory, calage.this, FILENAME, FOLDERNAME, res);
+
+            btnExport.setEnabled(true);
+            btnExport.setVisibility(View.VISIBLE);
+            btnExport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(fileNameInput.getVisibility() == View.VISIBLE){
+                        fileNameInput.setVisibility(View.INVISIBLE);
+                    } else {
+                        fileNameInput.setVisibility(View.VISIBLE);
+                    }
+                    fileNameInput.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            calage.this.writeOnExternalStorage(query);
+                            fileNameInput.setVisibility(View.INVISIBLE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
+                            return false;
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -399,7 +494,10 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             paramEllipsoide = new double[]{0, 0};
             String result = "";
             String numEllipsoide = strings[0];
-            String connexionEllipsoide = "http://192.168.1.51/logEllipsoide.php";
+            if(numEllipsoide.equals("")){
+                numEllipsoide = "WGS84";
+            }
+            String connexionEllipsoide = "http://"+ip+"/logEllipsoide.php";
             try {
                 URL url = new URL(connexionEllipsoide);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -464,6 +562,8 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             if (numEllipsoide.equalsIgnoreCase("wgs84")){
                 useDefault = true;
             } else if(paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
+                numEllipsoide = "WGS84";
+                useDefault = true;
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(calage.this);
 
                 alertDialog.setTitle("Ellipsoïde");
