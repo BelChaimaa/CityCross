@@ -237,7 +237,9 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             Log.d("__async__", "doinbackground");
             String result = "";
             Double distance = doubles[0];
-            String connexion = "http://192.168.1.51/logVilleCalage.php";
+            //changer l'adresse ip d l'ordi
+
+            String connexion = "http://10.181.201.63/logVilleCalage.php";
             try {
                 URL url = new URL(connexion);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -399,7 +401,8 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             paramEllipsoide = new double[]{0, 0};
             String result = "";
             String numEllipsoide = strings[0];
-            String connexionEllipsoide = "http://192.168.1.51/logEllipsoide.php";
+            //changer l'adresse IP du wifi
+            String connexionEllipsoide = "http://10.181.201.63/logEllipsoide.php";
             try {
                 URL url = new URL(connexionEllipsoide);
                 HttpURLConnection http = (HttpURLConnection) url.openConnection();

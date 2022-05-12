@@ -11,4 +11,8 @@
     <string name="explications">Explications</string>
     <string name="button">Button</string>
 
+    <string name="LinearLayout1" >guidage</string>
+    <string name="LinearLayout2">calage</string>
+    <string name="LinearLayout3">EnSavoirPlus</string>
+
 </resources>
