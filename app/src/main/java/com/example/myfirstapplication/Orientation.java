@@ -9,18 +9,16 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
-import java.text.DecimalFormat;
 
 public class Orientation implements SensorEventListener {
 
     public interface Listener {
         void onOrientationChanged(double azimuth);
     }
-    //
     double mAzimuth;
     private SensorManager mSensorManager;
     private Sensor mRotationV, mAccelerometer, mMagnetometer;
-    boolean haveSensor = false, haveSensor2 = false;
+    //boolean haveSensor = false, haveSensor2 = false;
     float[] rMat = new float[9];
     float[] orientation = new float[3];
     private float[] mLastAccelerometer = new float[3];
@@ -28,7 +26,7 @@ public class Orientation implements SensorEventListener {
     private boolean mLastAccelerometerSet = false;
     private boolean mLastMagnetometerSet = false;
     //
-    private static final int SENSOR_DELAY_MICROS = 1000000; // 16ms
+    private static final int SENSOR_DELAY_MICROS = 1000000; // est censé être le délai d'écoute mais ne fonctionne pas pour l'instant
 
     private final WindowManager mWindowManager;
 
@@ -42,7 +40,6 @@ public class Orientation implements SensorEventListener {
         mWindowManager = activity.getWindow().getWindowManager();
         mSensorManager = (SensorManager) activity.getSystemService(Activity.SENSOR_SERVICE);
 
-        // Can be null if the sensor hardware is not available
         mRotationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
     }
 
@@ -74,8 +71,9 @@ public class Orientation implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
+        // dans le cas où l'appareil possède le capteur virtuel TYPE_ROTATION_VECTOR, on l'utilise pour obtenir l'orientation du téléphone, sinon, on utilise l'accéléromètre et le magnétomètre
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            // Matrice de rotation des coordonnées du téléphone aux coordonnées du monde définies comme tel: x -> Est, y -> Nord magnétique et z -> ciel (base orthonormale)
             SensorManager.getRotationMatrixFromVector(rMat, event.values);
             mAzimuth = Math.round(Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) * 1000.0) / 1000.0;
         }
@@ -94,10 +92,10 @@ public class Orientation implements SensorEventListener {
         }
         mListener.onOrientationChanged(mAzimuth);
     }
-
+    /*
     @SuppressWarnings("SuspiciousNameCombination")
     private void updateOrientation(float[] rotationVector) {
-        // Matrice de rotation des coordonnées du téléphone aux coordonnées du monde définies comme tel: x -> Est, y -> Nord magnétique et z -> ciel (base orthonormale)
+    // ancienne fonction
         float[] rotationMatrix = new float[9];
         SensorManager.getRotationMatrixFromVector(rotationMatrix, rotationVector);
 
@@ -109,5 +107,5 @@ public class Orientation implements SensorEventListener {
         //float azimuth = (float) (Math.toDegrees(SensorManager.getOrientation(rotationMatrix, orientation)[0]) + 360) % 360;
 
         mListener.onOrientationChanged(azimuth);
-    }
+    }*/
 }

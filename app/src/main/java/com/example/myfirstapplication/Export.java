@@ -85,8 +85,6 @@ public class Export extends AppCompatActivity {
         return result;
     }
 
-    // ---
-
     private static void writeOnFile(Context context, String text, File file){
         try {
             file.getParentFile().mkdirs();
@@ -117,6 +115,7 @@ public class Export extends AppCompatActivity {
     }
 
     private static File createOrGetFile(File destination, String fileName, String folderName){
+        // si le fichier du nom de fileName existe déjà, il est retourné, sinon, il est créé
         File folder = new File(destination, folderName);
         return new File(folder, fileName);
     }

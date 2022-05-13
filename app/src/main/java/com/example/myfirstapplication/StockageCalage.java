@@ -13,7 +13,7 @@ public class StockageCalage extends AppCompatActivity {
     File directory;
 
     private static final String FILENAME = "Calage.txt";
-    private static final String FOLDERNAME = "CityCross/Calage";
+    private static final String FOLDERNAME = "CityCross/Calage"; // dossier du fichier externe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

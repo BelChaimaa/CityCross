@@ -15,7 +15,7 @@ public class StockageGuidage extends AppCompatActivity {
     File directory;
 
     private static final String FILENAME = "Guidage.txt";
-    private static final String FOLDERNAME = "CityCross/Guidage";
+    private static final String FOLDERNAME = "CityCross/Guidage"; // dossier du fichier externe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

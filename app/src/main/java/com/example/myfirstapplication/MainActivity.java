@@ -1,15 +1,15 @@
 package com.example.myfirstapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ToggleButton;
+
 
 public class MainActivity extends AppCompatActivity {
-//on initialise les boutons
+//on initialise les boutons qui sont en fait des layouts
     private LinearLayout calage;
     private LinearLayout guidage;
     private LinearLayout savoirPlus;
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         export.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // export permet d'accéder aux dernières recherches effectuée par l'utilisateur, le stockage est interne (dans l'application)
     public void openActivityExport(){
         Intent intent=new Intent(this,Export.class);
         startActivity(intent);

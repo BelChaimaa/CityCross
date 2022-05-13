@@ -28,15 +28,14 @@ public class GuidageView extends View {
         dir = direction;
     }
 
-    public static void drawArrow(Canvas canvas, float startX, float startY,
-                                 float stopX, float stopY, Paint paint) {
+    public static void drawArrow(Canvas canvas, float startX, float startY, float stopX, float stopY, Paint paint) {
 
         float dx = (stopX - startX);
         float dy = (stopY - startY);
         float rad = (float) Math.atan2(dy, dx);
 
         canvas.drawLine(startX, startY, stopX, stopY, paint);
-        canvas.drawLine(stopX, stopY,//from   w w  w .ja v  a2 s.c om
+        canvas.drawLine(stopX, stopY,
                 (float) (stopX + Math.cos(rad + Math.PI * 0.75) * 20),
                 (float) (stopY + Math.sin(rad + Math.PI * 0.75) * 20),
                 paint);
