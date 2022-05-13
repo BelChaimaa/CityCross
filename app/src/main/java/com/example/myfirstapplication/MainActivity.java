@@ -57,14 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        exporter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openActivityExport();
-
-            }
-        });
     }
 
     public void openActivityguidage() {
@@ -80,10 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void openActivitySavoirPlus(){
         Intent intent=new Intent(this,SavoirPlus.class);
-        startActivity(intent);
-    }
-    public void openActivityExport() {
-        Intent intent=new Intent(this,guidage.class);
         startActivity(intent);
     }
 
