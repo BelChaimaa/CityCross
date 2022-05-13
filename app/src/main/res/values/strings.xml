@@ -4,11 +4,7 @@
     <string name="guidage">Guidage</string>
     <string name="citycrossimage">citycrossImage</string>
     <string name="citycross">CityCross</string>
-    <string name="togglebutton3">ToggleButton3</string>
     <string name="en_savoir_plus">En savoir Plus</string>
-    <string name="togglebutton">ToggleButton</string>
-    <string name="togglebutton2">ToggleButton2</string>
-    <string name="explications">Explications</string>
     <string name="button">Button</string>
     <string name="title_activity_export">Export</string>
     <!-- Strings used for fragments for navigation -->
@@ -25,5 +21,8 @@
     <string name="LinearLayout1" >guidage</string>
     <string name="LinearLayout2">calage</string>
     <string name="LinearLayout3">EnSavoirPlus</string>
+    <string name="ellipsoide">Ellipsoïde</string>
+    <string name="description">Un ellipsoïde est un modèle mathématique représentant la forme de notre globe et permettant d\’exprimer des coordonnées géographiques afin d\’effectuer des calculs sur une surface proche de celle de la Terre. En effet, les projections s\’appuient sur les ellipsoïdes, après avoir récupéré les coordonnées (latitude, longitude) de chaque ville du monde, il faut ensuite projeter ces points sur notre fond de carte. </string>
+    <string name="suite">Il  faut donc choisir un ellipsoïde de révolution représentatif de la région du monde ou on se trouve. Puis, nous allons créer, ce qu’on appelle notre datum géodésique (ce datum géodésique est composé de la donnée de l\'ellipsoïde, la position du centre de l\'ellipsoïde par rapport au centre de masse de la terre ainsi que l\'orientation des axes de l\'ellipsoïde) ou, pour un datum local (l\'ellipsoïde, le point fondamentale ou l\'ellipsoïde est tangent au géoïde, l\’azimut initial et le méridien d\’origine).</string>
 
 </resources>
