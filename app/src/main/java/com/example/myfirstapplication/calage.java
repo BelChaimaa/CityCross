@@ -54,48 +54,49 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class calage extends AppCompatActivity implements Orientation.Listener {
+    // cette fonctionnalité permet, à partir du nom d'une distance, d'obtenir le nom, la distance et la direction sur un ellipsoïde donné des villes qui sont à cette distance (à un certain seuil près)
 
     private static final int RC_STORAGE_WRITE_PERMS = 100;
 
-    private static final String FILENAME = "Calage.txt";
+    private static final String FILENAME = "Calage.txt"; // utilisé uniquement pour le stockage interne (dans l'application)
     private static final String FOLDERNAME = "CityCross/Calage";
 
     LocationManager locationManager;
 
     private ConstraintLayout initLayout;
-    private ProgressBar progressBar;
+    private ProgressBar progressBar; // widget de chargement lorsque l'appareil cherche la position ou effectue les calculs
     private Button btnVille;
     private TextInputEditText inputDistance;
     private TextInputEditText inputEllipsoide;
     private TextInputEditText inputNumber;
     private TextView txtS12;
     private FloatingActionButton btnExport;
-    private SearchView fileNameInput;
+    private SearchView fileNameInput; // petite barre de recherche pour taper le nom du fichier externe lorsqu'on souhaite exporter les recherches effectuées
 
-    private CalageView calageView;
+    private CalageView calageView; // canvas ou les elements graphiques sont dessinés
 
     private Orientation mOrientation;
-    private boolean corrige = false;
+    private boolean corrige = false; // vraie si on a calculé la valeur de la déclinaison magnétique
 
-    private final double[] coordsNordMagnetique = {81.08, -73.13};
+    private final double[] coordsNordMagnetique = {81.08, -73.13}; // utilisé pour calculer la déclinaison magnétique
 
     private GeodesicData inverseUtilisateurNordMagnetique;
     private GeodesicData inverseUtilisateurVille;
 
     private double[] coordsUtilisateur;
-    private double direction;
-    private String numEllipsoide;
-    private ArrayList<Object[]> villes = new ArrayList<>();
-    private ArrayList<Object[]> villesAll = new ArrayList<>();
+    private double direction; // en degrés
+    private String numEllipsoide; // nom de l'ellipsoïde
+    private ArrayList<Object[]> villes = new ArrayList<>(); // villes qui seront affichées, en fonction du nombre de ville spécifié et de l'algorithme de sélection des villes
+    private ArrayList<Object[]> villesAll = new ArrayList<>(); // villes qui seront dans le fichier externe si l'utilisateur exporte les données, toute les villes qui sont à la distance spécifiée
     private double[] paramEllipsoide;
     private double distance;
-    private double seuil = 10000;
-    private double seuilAngle = 20;
-    private int nbVillesDefault = 20;
+    private double seuil = 10000; // en mètres, ici 10km
+    private double seuilAngle = 20; // si une ville est à moins de cette valeur en degrés d'une autre de plus grande population alors elle n'est pas affichée
+    private int nbVillesDefault = 10; // nombre de villes à afficher par défault
 
-    private int villesNumber;
+    private int villesNumber; // nombre de villes à afficher
 
-    private boolean useDefault;
+    private boolean useDefault; // si cette valeur est vraie on va utiliser l'ellipsoïde WGS84
 
     private String ip = "192.168.1.51";
 
@@ -110,13 +111,14 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             return;
         } else {
             Log.d("__pos__", "cherche...");
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListenerGPS);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListenerGPS);
+            // la position est actualisée toute les 10 secondes
 
-            long maxCounter = 20000;
+            long maxCounter = 5000;
             long diff = 1000;
 
             new CountDownTimer(maxCounter, diff) {
-
+                // on compte 5 secondes, si la position n'a pas été trouvé avec le GPS on cherche avec une autre méthode moins précise utilisant internet
                 public void onTick(long millisUntilFinished) {
                     long diff = maxCounter - millisUntilFinished;
                 }
@@ -191,6 +193,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
 
     @Override
     public void onOrientationChanged(double azimuth) {
+        // à chaque détection de changement d'orientation du téléphone on déclenche la fonction qui créée une instance de la classe CalageView
         if(corrige){
             btnVille.setEnabled(true);
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
@@ -248,6 +251,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     };
 
     public String createResultString(){
+        // ce qui sera affiché dans les fichiers de stockages (interne et externe)
         String res = "";
         for(Object[] ville: villesAll){
             res += "Nom: " + ville[0] + " Azimuth: " + ville[1] + " Distance: " + ville[2] + " mètres Ellipsoïde: " + numEllipsoide + "\n";
@@ -290,6 +294,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     }
 
     private class bg extends AsyncTask<Double, Void, ArrayList<Object[]>> {
+        // classe asynchrone qui permet la connection avec la base de données des villes, le paramètre d'entrée est la distance entrée par l'utilisateur
 
         Context c;
 
@@ -303,7 +308,6 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             String result = "";
             Double distance = doubles[0];
           
-            //changer l'adresse ip d l'ordi
             String connexion = "http://"+ip+"/logVilleCalage.php";
             
             try {
@@ -335,17 +339,16 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                     String stringCoords = jArray.getJSONObject(n).getString("Coordinates");
                     String nom = jArray.getJSONObject(n).getString("Name");
                     double[] coordsVille = {Double.parseDouble(stringCoords.split(",")[0]), Double.parseDouble(stringCoords.split(",")[1])};
+                    // on utilise la librairies geolib.jar pour faire le calcul du problème inverse sur toutes les villes afin d'obtenir leur orientatio et distance à partir de leurs coordonnées
                     if(useDefault){
                         inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
-                        //inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
-                    } else {
+                    } else { // cas par défault, ellipsoïde WGS84
                         Geodesic geo = new Geodesic(paramEllipsoide[0], paramEllipsoide[1]);
                         inverseUtilisateurVille = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
-                        //Log.d("__test0__", String.valueOf(inverseUtilisateurVille.s12));
                     }
                     if(Math.abs(inverseUtilisateurVille.s12 - distance) < seuil){
                         boolean correct = true;
-                        villesAll.add(new Object[]{nom, Math.round(inverseUtilisateurVille.azi1*1000.0)/1000.0, String.format("%.2f", inverseUtilisateurVille.s12)});
+                        villesAll.add(new Object[]{nom, Math.round(inverseUtilisateurVille.azi1*1000.0)/1000.0, String.format("%.2f", inverseUtilisateurVille.s12)}); // on garde une précision au milième pour l'azimuth et au centième pour la distance
                         for(Object[] ville: villes){
                             if(Math.abs(inverseUtilisateurVille.azi1 - Double.parseDouble(ville[1].toString())) < seuilAngle){
                                 correct = false;
@@ -426,6 +429,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     }
 
     private class bgEllipsoide extends AsyncTask<String, Void, double[]> {
+        //classe asynchrone qui permet la connexion avec la base de données des ellipsoïdes, prend en paramêtre le nom d'un ellipsoïde
 
         Context c;
 
@@ -434,6 +438,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         }
 
         private boolean getParamMethod1(String textEllipsoideString){
+            // méthode qui récupère les paramêtres de l'ellipsoïde à partir de la deuxième colonne de la base de données
             String aS = "";
             String bS = "";
             if(textEllipsoideString.matches(".*\\SPHEROID\\b.*")){
@@ -453,6 +458,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         }
 
         private boolean getParamMethod2(String paramEllipsoideString){
+            // méthode qui récupère les paramêtres de l'ellipsoïde à partir de la troisième colonne de la base de données
             String aS = "";
             String bS = "";
             int egal = 0;
@@ -500,7 +506,6 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             if(numEllipsoide.equals("")){
                 numEllipsoide = "WGS84";
             }
-          //changer l'adresse IP du wifi
             String connexionEllipsoide = "http://"+ip+"/logEllipsoide.php";
 
             try {
@@ -536,7 +541,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
                 }
                 if(getParamMethod1(textEllipsoideString)){
                     getParamMethod1(textEllipsoideString);
-                } else {
+                } else { // dans certains cas la deuxième colonne ne contient pas les paramêtres de l'ellipsoïde
                     getParamMethod2(paramEllipsoideString);
                 }
                 return paramEllipsoide;
@@ -566,7 +571,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
             Log.d("___e___", numEllipsoide.toLowerCase());
             if (numEllipsoide.equalsIgnoreCase("wgs84")){
                 useDefault = true;
-            } else if(paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
+            } else if(paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) { // ellipsoïde inconnue
                 numEllipsoide = "WGS84";
                 useDefault = true;
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(calage.this);

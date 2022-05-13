@@ -59,10 +59,11 @@ import java.text.NumberFormat;
 
 
 public class guidage extends AppCompatActivity implements Orientation.Listener {
+    // cette fonctionnalité permet, à partir du nom d'une ville, d'obtenir la distance et la direction sur un ellipsoïde donné
 
     private static final int RC_STORAGE_WRITE_PERMS = 100;
 
-    private static final String FILENAME = "Guidage.txt";
+    private static final String FILENAME = "Guidage.txt"; // utilisé uniquement pour le stockage interne (dans l'application)
     private static final String FOLDERNAME = "CityCross/Guidage";
 
     final int red = Color.parseColor("#F44336");
@@ -71,28 +72,28 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     LocationManager locationManager;
 
     private ConstraintLayout initLayout;
-    private ProgressBar progressBar;
+    private ProgressBar progressBar; // widget de chargement lorsque l'appareil cherche la position ou effectue les calculs
     private Button btnChercher;
     private TextInputEditText inputVille;
     private TextInputEditText inputEllipsoide;
     private TextView txtS12;
     private FloatingActionButton btnExport;
-    private SearchView fileNameInput;
+    private SearchView fileNameInput; // petite barre de recherche pour taper le nom du fichier externe lorsqu'on souhaite exporter les recherches effectuées
 
-    private GuidageView guidageView;
+    private GuidageView guidageView; // canvas ou les elements graphiques sont dessinés
 
     private Orientation mOrientation;
-    private boolean corrige = false;
+    private boolean corrige = false; // vraie si on a calculé la valeur de la déclinaison magnétique
 
-    private double[] coordsNordMagnetique = {81.08, -73.13};
+    private double[] coordsNordMagnetique = {81.08, -73.13}; // utilisé pour calculer la déclinaison magnétique
 
     private GeodesicData inverseUtilisateurNordMagnetique;
     private GeodesicData inverseUtilisateurVille;
 
     private double[] coordsUtilisateur;
-    private double direction;
+    private double direction; // en degrés
     private String nomVille;
-    private String numEllipsoide;
+    private String numEllipsoide; // nom de l'ellipsoïde
     private double[] coordsVille;
     private double[] paramEllipsoide;
     private double distance;
@@ -115,12 +116,13 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         } else {
             Log.d("__pos__", "cherche...");
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListenerGPS);
+            // la position est actualisée toute les 10 secondes
 
             long maxCounter = 5000;
             long diff = 1000;
 
             new CountDownTimer(maxCounter, diff) {
-
+                // on compte 5 secondes, si la position n'a pas été trouvé avec le GPS on cherche avec une autre méthode moins précise utilisant internet
                 public void onTick(long millisUntilFinished) {
                     long diff = maxCounter - millisUntilFinished;
                 }
@@ -189,6 +191,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
     @Override
     public void onOrientationChanged(double azimuth) {
+        // à chaque détection de changement d'orientation du téléphone on déclenche la fonction qui créée une instance de la classe CalageView
         if(corrige){
             btnChercher.setEnabled(true);
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
@@ -249,6 +252,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     };
 
     public String createResultString(){
+        // ce qui sera affiché dans les fichiers de stockages (interne et externe)
         String res = "Nom: " + nomVille + " Azimuth: " + String.format("%.3f", inverseUtilisateurVille.azi1) + " Distance: " + String.format("%.2f", inverseUtilisateurVille.s12) + " mètres Ellispoïde: " + numEllipsoide + "\n";
         Log.d("___res___", res);
         return res;
@@ -291,6 +295,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
 
 
     private class bg extends AsyncTask<String, Void, double[]> {
+        // classe asynchrone qui permet la connection avec la base de données des villes, le paramètre d'entrée est le nom de la ville entrée par l'utilisateur
 
         Context c;
 
@@ -354,10 +359,11 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         protected void onPostExecute(double[] coordsVille) {
             super.onPostExecute(coordsVille);
             try {
+                // on utilise la librairies geolib.jar pour faire le calcul du problème inverse sur toutes les villes afin d'obtenir leur orientatio et distance à partir de leurs coordonnées
                 if (useDefault) {
                     inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
                     inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
-                } else {
+                } else { // cas par défault, ellipsoïde WGS84
                     Geodesic geo = new Geodesic(paramEllipsoide[0], paramEllipsoide[1]);
                     inverseUtilisateurVille = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
                     inverseUtilisateurNordMagnetique = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
@@ -415,6 +421,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     }
 
     private class bgEllipsoide extends AsyncTask<String, Void, double[]> {
+        //classe asynchrone qui permet la connexion avec la base de données des ellipsoïdes, prend en paramêtre le nom d'un ellipsoïde
 
         Context c;
 
@@ -423,6 +430,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         }
 
         private boolean getParamMethod1(String textEllipsoideString){
+            // méthode qui récupère les paramêtres de l'ellipsoïde à partir de la deuxième colonne de la base de données
             String aS = "";
             String bS = "";
             if(textEllipsoideString.matches(".*\\SPHEROID\\b.*")){
@@ -442,6 +450,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
         }
 
         private boolean getParamMethod2(String paramEllipsoideString){
+            // méthode qui récupère les paramêtres de l'ellipsoïde à partir de la troisième colonne de la base de données
             String aS = "";
             String bS = "";
             int egal = 0;

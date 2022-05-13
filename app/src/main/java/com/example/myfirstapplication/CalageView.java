@@ -51,6 +51,7 @@ public class CalageView extends View {
 
     public static void drawArrow(Canvas canvas, float startX, float startY,
                                  float stopX, float stopY, Paint paint) {
+        // dessin d'ue flèche simple
 
         float dx = (stopX - startX);
         float dy = (stopY - startY);
@@ -83,12 +84,14 @@ public class CalageView extends View {
             float angle = (float) (Double.parseDouble(ville[1].toString()) - dir);
             String nom = (String) ville[0];
             canvas.save();
-            canvas.rotate(angle,getWidth()/2, (getHeight()-350)/2+350);
-            if(Math.abs(angle) < 10){
+            canvas.rotate(angle,getWidth()/2, (getHeight()-350)/2+350); // les villes "tournent" grâce à cette rotation qui dépend de l'angle entre la ville, l'appareil et le nord
+            if(Math.abs(angle) < 10){ // 10 est un seuil définissant l'angle minimale qui espace deux villes affichée
                 oriente = true;
                 paint.setColor(Color.YELLOW);
                 canvas.restore();
                 canvas.drawText(nom, (float) (getWidth()/2) - paint.measureText(nom)/2, (float) ((getHeight()-350)/2 + 250 - rayon), paint);
+                // la ville est affichée un peu en haut et en jaune pour être facilement identifiable
+                // on affiche également sa distance à l'appareil
                 txtS12.setVisibility(VISIBLE);
                 txtS12.setText(getResources().getString(R.string.distance, ville[2]));
             } else {
@@ -98,11 +101,10 @@ public class CalageView extends View {
                 path.addArc(rect, -90.0f, 270.0f);
                 canvas.drawPath(path, paint);
                 canvas.drawTextOnPath(nom, path, 0.0f, -20.0f, paint);
-                //canvas.drawText(nom, (float) (getWidth()/2) - paint.measureText(nom)/2, (float) ((getHeight()-350)/2 + 350 - (longueurFleche+100)), paint);
                 canvas.restore();
             }
         }
-        if(!oriente){
+        if(!oriente){ // cas où le téléphone n'est orienté vers aucune des villes affichées (à 10 deg près)
             txtS12.setVisibility(INVISIBLE);
         }
     }
