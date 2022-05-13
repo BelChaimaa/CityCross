@@ -22,4 +22,8 @@
 
     <string name="distance">Distance sur l\'ellipsoïde: %1$s mètres</string>
 
+    <string name="LinearLayout1" >guidage</string>
+    <string name="LinearLayout2">calage</string>
+    <string name="LinearLayout3">EnSavoirPlus</string>
+
 </resources>
