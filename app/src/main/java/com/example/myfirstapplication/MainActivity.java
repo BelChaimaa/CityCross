@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //appeler des methodes implémentées dans la classe mainActivity
-                openActivitycalage();
+                openActivityRechercheCalage();
 
             }
         });
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         guidage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openActivityguidage();
+                openActivityRechercheGuidage();
 
             }
         });
@@ -60,14 +60,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void openActivityguidage() {
-        Intent intent=new Intent(this,guidage.class);
+    public void openActivityRechercheGuidage() {
+        Intent intent=new Intent(this,RechercheGuidage.class);
         startActivity(intent);
     }
 
 
-    public void openActivitycalage(){
-        Intent intent=new Intent(this,calage.class);
+    public void openActivityRechercheCalage(){
+        Intent intent=new Intent(this,RechercheCalage.class);
         startActivity(intent);
     }
 

@@ -22,6 +22,12 @@
         android:theme="@style/Theme.MyFirstApplication"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".RechercheCalage"
+            android:exported="false" />
+        <activity
+            android:name=".RechercheGuidage"
+            android:exported="false" />
+        <activity
             android:name=".StockageCalage"
             android:exported="false" />
         <activity

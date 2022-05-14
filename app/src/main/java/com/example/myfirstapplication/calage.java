@@ -64,14 +64,11 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     LocationManager locationManager;
 
     private ConstraintLayout initLayout;
-    private ProgressBar progressBar; // widget de chargement lorsque l'appareil cherche la position ou effectue les calculs
-    private Button btnVille;
-    private TextInputEditText inputDistance;
-    private TextInputEditText inputEllipsoide;
-    private TextInputEditText inputNumber;
+
     private TextView txtS12;
     private FloatingActionButton btnExport;
     private SearchView fileNameInput; // petite barre de recherche pour taper le nom du fichier externe lorsqu'on souhaite exporter les recherches effectuées
+    private ProgressBar progressBar;
 
     private CalageView calageView; // canvas ou les elements graphiques sont dessinés
 
@@ -93,7 +90,6 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     private double seuil = 10000; // en mètres, ici 10km
     private double seuilAngle = 20; // si une ville est à moins de cette valeur en degrés d'une autre de plus grande population alors elle n'est pas affichée
     private int nbVillesDefault = 10; // nombre de villes à afficher par défault
-
     private int villesNumber; // nombre de villes à afficher
 
     private boolean useDefault; // si cette valeur est vraie on va utiliser l'ellipsoïde WGS84
@@ -105,72 +101,27 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calage);
 
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(calage.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return;
-        } else {
-            Log.d("__pos__", "cherche...");
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListenerGPS);
-            // la position est actualisée toute les 10 secondes
-
-            long maxCounter = 5000;
-            long diff = 1000;
-
-            new CountDownTimer(maxCounter, diff) {
-                // on compte 5 secondes, si la position n'a pas été trouvé avec le GPS on cherche avec une autre méthode moins précise utilisant internet
-                public void onTick(long millisUntilFinished) {
-                    long diff = maxCounter - millisUntilFinished;
-                }
-
-                public void onFinish() {
-                    if (ActivityCompat.checkSelfPermission(calage.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(calage.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    Log.d("__pos__", "GPS prend trop de temps, on essai internet");
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListenerGPS);
-                }
-            }.start();
-        }
-
         initLayout = findViewById(R.id.initLayout);
-        progressBar = findViewById(R.id.progressBar);
-        btnVille = findViewById(R.id.btnChercher);
-        inputDistance = findViewById(R.id.inputDistance);
-        inputEllipsoide = findViewById(R.id.inputEllipsoide);
-        inputNumber = findViewById(R.id.inputNumber);
         txtS12 = findViewById(R.id.txtS12);
         btnExport = findViewById(R.id.btnExport);
         fileNameInput = findViewById(R.id.fileNameInput);
+        progressBar = findViewById(R.id.progressBar);
 
         mOrientation = new Orientation(this);
 
-        btnVille.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    btnVille.setEnabled(false);
-                    distance = Double.parseDouble(inputDistance.getText().toString());
-                    numEllipsoide = inputEllipsoide.getText().toString();
-                    try {
-                        villesNumber = Integer.parseInt(inputNumber.getText().toString());
-                    } catch(NumberFormatException e){
-                        villesNumber = nbVillesDefault;
-                    }
+        Bundle b = getIntent().getExtras();
+        distance = b.getDouble("distance");
+        numEllipsoide = b.getString("numEllipsoide");
+        coordsUtilisateur = b.getDoubleArray("coordsUtilisateur");
+        villesNumber = b.getInt("villesNumber");
 
-                    calage.bgEllipsoide backgroundEllipsoide = new calage.bgEllipsoide(getApplicationContext());
-                    backgroundEllipsoide.execute(numEllipsoide);
+        inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
 
-                    calage.bg background = new calage.bg(getApplicationContext());
-                    background.execute(distance);
-                    Log.d("__distance__", String.valueOf(distance));
-                } catch (NullPointerException e) {
-                    Log.d("Error", String.valueOf(e)); // l'appareil n'a pas encore été géolocalisé
-                    progressBar.setVisibility(View.VISIBLE);
-                    btnVille.setEnabled(false);
-                }
-            }
-        });
+        calage.bgEllipsoide backgroundEllipsoide = new calage.bgEllipsoide(getApplicationContext());
+        backgroundEllipsoide.execute(numEllipsoide);
+
+        calage.bg background = new calage.bg(getApplicationContext());
+        background.execute(distance);
     }
 
     @Override
@@ -195,60 +146,12 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     public void onOrientationChanged(double azimuth) {
         // à chaque détection de changement d'orientation du téléphone on déclenche la fonction qui créée une instance de la classe CalageView
         if(corrige){
-            btnVille.setEnabled(true);
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
             initLayout.removeView(calageView);
             calageView = new CalageView(this, txtS12, villes, direction);
             initLayout.addView(calageView);
         }
     }
-
-    LocationListener locationListenerGPS=new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.d("display location", "Latitude: "+location.getLatitude()+", longitude: "+location.getLongitude());
-            coordsUtilisateur = new double[]{location.getLatitude(), location.getLongitude()};
-            if(progressBar.getVisibility() == View.VISIBLE){
-                progressBar.setVisibility(View.INVISIBLE);
-                btnVille.setEnabled(true);
-            }
-            inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Log.d("display location", "location = null");
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(calage.this);
-
-            alertDialog.setTitle("GPS");
-            alertDialog.setMessage("Votre GPS n'est pas activé, l'application ne peut pas fonctionner sans votre localisation.");
-            alertDialog.setPositiveButton("Paramêtres", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    calage.this.startActivity(intent);
-                }
-            });
-            alertDialog.setNegativeButton("Fermer", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    Intent intent = new Intent(calage.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            });
-            alertDialog.show();
-        }
-    };
 
     public String createResultString(){
         // ce qui sera affiché dans les fichiers de stockages (interne et externe)
@@ -393,6 +296,8 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
         @Override
         protected void onPostExecute(ArrayList<Object[]> villes) {
             super.onPostExecute(villes);
+
+            progressBar.setVisibility(View.INVISIBLE);
             corrige = true;
             Log.d("__villes__", String.valueOf(villes));
 

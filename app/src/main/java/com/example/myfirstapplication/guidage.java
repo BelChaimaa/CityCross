@@ -2,40 +2,33 @@ package com.example.myfirstapplication;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Environment;
-import android.provider.Settings;
-
-import android.widget.ProgressBar;
-import android.widget.SearchView;
-import android.widget.TextView;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
 
-import net.sf.geographiclib.*; // librairie externe qui permet d'effectuer les calculs géodésiques comme le problème inverse, situé dans app/libs
+import net.sf.geographiclib.Geodesic;
+import net.sf.geographiclib.GeodesicData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,118 +50,64 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+public class guidage extends AppCompatActivity implements Orientation.Listener{
 
-public class guidage extends AppCompatActivity implements Orientation.Listener {
-    // cette fonctionnalité permet, à partir du nom d'une ville, d'obtenir la distance et la direction sur un ellipsoïde donné
 
     private static final int RC_STORAGE_WRITE_PERMS = 100;
-
     private static final String FILENAME = "Guidage.txt"; // utilisé uniquement pour le stockage interne (dans l'application)
     private static final String FOLDERNAME = "CityCross/Guidage";
+    private String ip = "192.168.1.51";
+
+    private Orientation mOrientation;
+
+    private ConstraintLayout initLayout;
+
+    private GuidageView guidageView; // canvas ou les elements graphiques sont dessinés
 
     final int red = Color.parseColor("#F44336");
     final int green = Color.parseColor("#4CAF50");
 
-    LocationManager locationManager;
+    private boolean corrige = false; // vraie si on a calculé la valeur de la déclinaison magnétique
 
-    private ConstraintLayout initLayout;
-    private ProgressBar progressBar; // widget de chargement lorsque l'appareil cherche la position ou effectue les calculs
-    private Button btnChercher;
-    private TextInputEditText inputVille;
-    private TextInputEditText inputEllipsoide;
+    private double direction; // en degrés
+    private GeodesicData inverseUtilisateurNordMagnetique;
+    private GeodesicData inverseUtilisateurVille;
     private TextView txtS12;
     private FloatingActionButton btnExport;
     private SearchView fileNameInput; // petite barre de recherche pour taper le nom du fichier externe lorsqu'on souhaite exporter les recherches effectuées
 
-    private GuidageView guidageView; // canvas ou les elements graphiques sont dessinés
-
-    private Orientation mOrientation;
-    private boolean corrige = false; // vraie si on a calculé la valeur de la déclinaison magnétique
-
-    private double[] coordsNordMagnetique = {81.08, -73.13}; // utilisé pour calculer la déclinaison magnétique
-
-    private GeodesicData inverseUtilisateurNordMagnetique;
-    private GeodesicData inverseUtilisateurVille;
-
+    private double seuilAngle = 10;
     private double[] coordsUtilisateur;
-    private double direction; // en degrés
     private String nomVille;
     private String numEllipsoide; // nom de l'ellipsoïde
     private double[] coordsVille;
     private double[] paramEllipsoide;
     private double distance;
-    private double seuilAngle = 10;
 
-    private boolean useDefault;
+    private double[] coordsNordMagnetique = {81.08, -73.13}; // utilisé pour calculer la déclinaison magnétique
 
-    private String ip = "192.168.1.51";
-
+    private boolean useDefault = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guidage);
 
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(guidage.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            return;
-        } else {
-            Log.d("__pos__", "cherche...");
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListenerGPS);
-            // la position est actualisée toute les 10 secondes
-
-            long maxCounter = 5000;
-            long diff = 1000;
-
-            new CountDownTimer(maxCounter, diff) {
-                // on compte 5 secondes, si la position n'a pas été trouvé avec le GPS on cherche avec une autre méthode moins précise utilisant internet
-                public void onTick(long millisUntilFinished) {
-                    long diff = maxCounter - millisUntilFinished;
-                }
-
-                public void onFinish() {
-                    if (ActivityCompat.checkSelfPermission(guidage.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(guidage.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    Log.d("__pos__", "GPS prend trop de temps, on essai internet");
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListenerGPS);
-                }
-            }.start();
-        }
-
+        mOrientation = new Orientation(this);
         initLayout = findViewById(R.id.initLayout);
-        progressBar = findViewById(R.id.progressBar);
-        btnChercher = findViewById(R.id.btnChercher);
-        inputVille = findViewById(R.id.inputDistance);
-        inputEllipsoide = findViewById(R.id.inputEllipsoide);
         txtS12 = findViewById(R.id.txtS12);
         btnExport = findViewById(R.id.btnExport);
         fileNameInput = findViewById(R.id.fileNameInput);
 
-        mOrientation = new Orientation(this);
+        Bundle b = getIntent().getExtras();
+        nomVille = b.getString("nomVille");
+        numEllipsoide = b.getString("numEllipsoide");
+        coordsUtilisateur = b.getDoubleArray("coordsUtilisateur");
 
-        btnChercher.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                useDefault = true;
-                try {
-                    btnChercher.setEnabled(false);
-                    nomVille = inputVille.getText().toString();
-                    numEllipsoide = inputEllipsoide.getText().toString();
-
-                    bgEllipsoide backgroundEllipsoide = new bgEllipsoide(getApplicationContext());
-                    backgroundEllipsoide.execute(numEllipsoide);
-                    bg background = new bg(getApplicationContext());
-                    background.execute(nomVille);
-                    Log.d("input", nomVille);
-                } catch (NullPointerException e) {
-                    Log.d("Error", String.valueOf(e)); // l'appareil n'a pas encore été géolocalisé
-                    progressBar.setVisibility(View.VISIBLE);
-                    btnChercher.setEnabled(false);
-                }
-            }
-        });
+        bgEllipsoide backgroundEllipsoide = new bgEllipsoide(getApplicationContext());
+        backgroundEllipsoide.execute(numEllipsoide);
+        bg background = new bg(getApplicationContext());
+        background.execute(nomVille);
     }
 
     @Override
@@ -193,7 +132,6 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
     public void onOrientationChanged(double azimuth) {
         // à chaque détection de changement d'orientation du téléphone on déclenche la fonction qui créée une instance de la classe CalageView
         if(corrige){
-            btnChercher.setEnabled(true);
             direction = azimuth + inverseUtilisateurNordMagnetique.azi1;
             //Log.d("___direction___", String.valueOf(azimuth));
             initLayout.removeView(guidageView);
@@ -206,50 +144,6 @@ public class guidage extends AppCompatActivity implements Orientation.Listener {
             }
         }
     }
-
-    LocationListener locationListenerGPS=new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.d("__location__", "Latitude: "+location.getLatitude()+", longitude: "+location.getLongitude());
-            coordsUtilisateur = new double[]{location.getLatitude(), location.getLongitude()};
-            progressBar.setVisibility(View.INVISIBLE);
-            btnChercher.setEnabled(true);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Log.d("__location__", "location = null");
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
-
-            alertDialog.setTitle("GPS");
-            alertDialog.setMessage("Votre GPS n'est pas activé, l'application ne peut pas fonctionner sans votre localisation.");
-            alertDialog.setPositiveButton("Paramêtres", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    guidage.this.startActivity(intent);
-                }
-            });
-            alertDialog.setNegativeButton("Fermer", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    Intent intent = new Intent(guidage.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            });
-            alertDialog.show();
-        }
-    };
 
     public String createResultString(){
         // ce qui sera affiché dans les fichiers de stockages (interne et externe)
