@@ -94,7 +94,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
 
     private boolean useDefault; // si cette valeur est vraie on va utiliser l'ellipsoïde WGS84
 
-    private String ip = "192.168.1.51";
+    private String ip = "172.28.56.189";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +165,7 @@ public class calage extends AppCompatActivity implements Orientation.Listener {
     private void writeOnExternalStorage(String fileName) {
         if (Export.isExternalStorageWritable()) {
             File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            Export.setTextInStorage(directory, calage.this, fileName, FOLDERNAME, createResultString());
+            Export.setTextInStorage(directory, calage.this, fileName+".txt", FOLDERNAME, createResultString());
         } else {
             Toast.makeText(calage.this, "Impossible d'exporter les données dans le stockage externe, veuillez vérifier les autorisations de l'application.", Toast.LENGTH_LONG).show();
         }

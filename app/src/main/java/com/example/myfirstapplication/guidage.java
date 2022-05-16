@@ -56,7 +56,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener{
     private static final int RC_STORAGE_WRITE_PERMS = 100;
     private static final String FILENAME = "Guidage.txt"; // utilisé uniquement pour le stockage interne (dans l'application)
     private static final String FOLDERNAME = "CityCross/Guidage";
-    private String ip = "192.168.1.51";
+    private String ip = "172.28.56.189";
 
     private Orientation mOrientation;
 
@@ -155,7 +155,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener{
     private void writeOnExternalStorage(String fileName) {
         if (Export.isExternalStorageWritable()) {
             File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            Export.setTextInStorage(directory, guidage.this, fileName, FOLDERNAME, createResultString());
+            Export.setTextInStorage(directory, guidage.this, fileName+".txt", FOLDERNAME, createResultString());
         } else {
             Toast.makeText(guidage.this, "Impossible d'exporter les données dans le stockage externe, veuillez vérifier les autorisations de l'application.", Toast.LENGTH_LONG).show();
         }
