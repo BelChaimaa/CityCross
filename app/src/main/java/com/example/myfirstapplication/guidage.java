@@ -56,7 +56,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener{
     private static final int RC_STORAGE_WRITE_PERMS = 100;
     private static final String FILENAME = "Guidage.txt"; // utilisé uniquement pour le stockage interne (dans l'application)
     private static final String FOLDERNAME = "CityCross/Guidage";
-    private String ip = "172.28.56.189";
+    private String ip = "192.168.1.51";
 
     private Orientation mOrientation;
 
@@ -257,7 +257,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener{
                 if (useDefault) {
                     inverseUtilisateurVille = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
                     inverseUtilisateurNordMagnetique = Geodesic.WGS84.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
-                } else { // cas par défault, ellipsoïde WGS84
+                } else { // cas par défault, ellipsoïde GRS 1980
                     Geodesic geo = new Geodesic(paramEllipsoide[0], paramEllipsoide[1]);
                     inverseUtilisateurVille = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsVille[0], coordsVille[1]);
                     inverseUtilisateurNordMagnetique = geo.Inverse(coordsUtilisateur[0], coordsUtilisateur[1], coordsNordMagnetique[0], coordsNordMagnetique[1]);
@@ -390,7 +390,7 @@ public class guidage extends AppCompatActivity implements Orientation.Listener{
             String result = "";
             numEllipsoide = strings[0];
             if(numEllipsoide.equals("")){
-                numEllipsoide = "WGS84";
+                numEllipsoide = "GRS 1980";
             }
             String connexionEllipsoide = "http://"+ip+"/logEllipsoide.php";
             try {
@@ -454,15 +454,15 @@ public class guidage extends AppCompatActivity implements Orientation.Listener{
         protected void onPostExecute(double[] paramEllipsoide) {
             super.onPostExecute(paramEllipsoide);
             Log.d("___e___", numEllipsoide.toLowerCase());
-            if (numEllipsoide.equalsIgnoreCase("wgs84")){
+            if (numEllipsoide.equalsIgnoreCase("grs 1980")){
                 useDefault = true;
             } else if(paramEllipsoide[0] == 0 && paramEllipsoide[1] == 0) {
-                numEllipsoide = "WGS84";
+                numEllipsoide = "GRS 1980";
                 useDefault = true;
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(guidage.this);
 
                 alertDialog.setTitle("Ellipsoïde");
-                alertDialog.setMessage("L'ellipsoïde renseigné n'est pas reconnu par la base de données. L'ellipsoïde WGS84 a été utilisé par défault");
+                alertDialog.setMessage("L'ellipsoïde renseigné n'est pas reconnu par la base de données. L'ellipsoïde GRS 1980 a été utilisé par défault");
                 alertDialog.setPositiveButton("retour", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
